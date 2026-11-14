@@ -1,0 +1,16 @@
+[
+  { "path": "AI_USAGE.md", "type": "doc", "tool": "Claude (Anthropic)",
+    "how": "Drafted the SI usage summary", "humanReviewed": true },
+  { "path": "vitest.config.ts", "type": "code", "tool": "Claude (Anthropic)",
+    "how": "Wrote the test runner configuration", "humanReviewed": true },
+  { "path": "src/engine/smoke.test.ts", "type": "code", "tool": "Claude (Anthropic)",
+    "how": "Wrote a starter test that confirms the test runner works", "humanReviewed": true },
+  { "path": "scripts/check-si.ts", "type": "code", "tool": "Claude (Anthropic)",
+    "how": "Wrote the CI script that checks SI disclosure", "humanReviewed": true },
+  { "path": "scripts/check-cards.ts", "type": "code", "tool": "Claude (Anthropic)",
+    "how": "Wrote a placeholder card validator", "humanReviewed": true },
+  { "path": ".github/workflows/ci.yml", "type": "code", "tool": "Claude (Anthropic)",
+    "how": "Wrote the CI workflow (tests, card check, SI check)", "humanReviewed": true },
+  { "path": ".github/workflows/deploy.yml", "type": "code", "tool": "Claude (Anthropic)",
+    "how": "Wrote the GitHub Pages deploy workflow", "humanReviewed": true }
+]
