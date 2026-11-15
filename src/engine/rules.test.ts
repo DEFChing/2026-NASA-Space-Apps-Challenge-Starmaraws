@@ -4,16 +4,16 @@
  */
 import { describe, expect, test } from "vitest";
 import levelJson from "../data/moon.level.json";
-import { loadCards, loadLevel } from "./content";
+import { loadLevel } from "./content";
+import { moonCards, moonLevel } from "./data";
 import {
   badgeColour, choicesFor, isDayTurn, planProblem, resolveTurn, shelterCost, sunlightOn,
 } from "./rules";
 import { newRun, placeholderWeather } from "./run";
-import { moonTestCards } from "./testCards";
 import type { Choice, Ctx, DailyPlan, GameEvent, GameState, Specialist, WeatherTurn } from "./types";
 
-const level = loadLevel(levelJson, "moon.level.json");
-const cards = loadCards({ cards: moonTestCards }, "testCards");
+const level = moonLevel;
+const cards = moonCards;
 const CALM: WeatherTurn[] = Array.from({ length: 8 }, () => ({ storm: false, forecast: "low" }));
 const DECK = ["B0", "N1", "D3", "N5", "D4", "N3", "D8", "N7"];
 
@@ -54,18 +54,6 @@ describe("level and card files", () => {
     bad.level.piles.night = [1, 3, 5];
     expect(() => loadLevel(bad, "bad.json")).toThrow(/bad.json: piles must cover all 8 turns/);
     expect(() => loadLevel({ id: "moon" })).toThrow(/expected/);
-  });
-
-  test("a card with no zero-Power option is rejected (rule 6)", () => {
-    const n1 = structuredClone(moonTestCards.find(c => c.id === "N1")!);
-    n1.options[1].effects = [{ res: "power", delta: -1 }];
-    expect(() => loadCards({ cards: [n1] })).toThrow(/N1: needs an option with no Power cost/);
-  });
-
-  test("cards can't create Power or Warmth (truth rules)", () => {
-    const d3 = structuredClone(moonTestCards.find(c => c.id === "D3")!);
-    d3.options[1].effects = [{ res: "power", delta: 2 }];
-    expect(() => loadCards({ cards: [d3] })).toThrow(/Power only comes from sunlight/);
   });
 });
 

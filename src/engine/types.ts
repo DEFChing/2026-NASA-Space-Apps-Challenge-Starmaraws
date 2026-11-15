@@ -24,8 +24,10 @@ export interface Effect {
   forTurns?: number;           // ...for N turns (missing = rest of the mission);
                                //    res/stars/badge: repeat on N turns in a row
   inTurns?: number;            // delay before it lands (0 or missing = now)
-  repeat?: "dayTurns";         // land on this turn and every Day turn left (at step 6)
+  onTurns?: "day";             // "every Day turn left": this turn and each later Day turn (step 6)
   flag?: Flag;
+  grows?: boolean;             // Food that was grown (truth rule: Food only from growing...
+  delivers?: boolean;          // ...or from a delivery)
 }
 
 export interface Gamble {
@@ -37,6 +39,8 @@ export interface Option {
   label: string;
   effects: Effect[];
   gamble?: Gamble;
+  /** Honest "skip it" option whose only cost is the Star or Food given up. */
+  forgoesReward?: boolean;
 }
 
 export interface SpecialistOption extends Option {

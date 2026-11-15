@@ -1,0 +1,276 @@
+{
+  "_meta": {
+    "si": {
+      "generated": true,
+      "tool": "Claude (Anthropic)",
+      "how": "Drafted card text and first-pass numbers from the Game Design Spec v2 and the cited sources",
+      "humanReviewed": true
+    }
+  },
+  "cards": [
+    {
+      "id": "B0", "pile": "opener", "tag": "opportunity",
+      "title": "Building the base",
+      "text": "Welcome to the Sea of Tranquility! The rover's blade can pile moon dirt, called regolith, over your habitat. Thick dirt blocks space radiation and keeps heat in.",
+      "options": [
+        { "label": "Bury the whole habitat",
+          "effects": [{ "res": "power", "delta": -3 }, { "badge": 1 }, { "flag": "buried" }] },
+        { "label": "Sandbag only the sleeping area",
+          "effects": [{ "res": "power", "delta": -1 }, { "flag": "sandbagged" }] }
+      ],
+      "realBasis": "NASA studies estimate 3–5 m of regolith shields a habitat, and packed regolith also insulates against heat swings.",
+      "sources": [
+        { "label": "NASA NTRS", "url": "https://ntrs.nasa.gov/citations/19930019927" },
+        { "label": "Applied Sciences, 2021", "url": "https://doi.org/10.3390/app11093853" }
+      ]
+    },
+    {
+      "id": "D1", "pile": "day", "tag": "dilemma",
+      "title": "Noon heat",
+      "text": "The Sun is high and the ground outside is hotter than boiling water. The habitat is heating up.",
+      "options": [
+        { "label": "Run the radiator pumps hard", "effects": [{ "res": "power", "delta": -1 }] },
+        { "label": "Pause outdoor work through midday", "effects": [{ "stars": -1 }] }
+      ],
+      "realBasis": "Daytime temperatures near the lunar equator reach about 120 °C.",
+      "sources": [{ "label": "NASA LRO", "url": "https://science.nasa.gov/wp-content/uploads/2024/01/lrolitho7temperaturevariation27may2014.pdf" }]
+    },
+    {
+      "id": "D2", "pile": "day", "tag": "crisis",
+      "title": "Dust on the radiators",
+      "text": "Dark moon dust has settled on the cooling panels. Dust soaks up sunlight, so the panels can't cool the habitat well.",
+      "options": [
+        { "label": "Brush them off during a moonwalk", "effects": [{ "badge": 1 }, { "stars": -1 }] },
+        { "label": "Leave them (cooling works harder every Day)",
+          "effects": [{ "res": "power", "delta": -1, "onTurns": "day" }] }
+      ],
+      "specialist": { "who": "engineer", "label": "Switch on the electrodynamic dust shield",
+        "effects": [{ "res": "power", "delta": -2 }] },
+      "mini": "dust",
+      "realBasis": "On Apollo 16 and 17, dust on the rover's radiators overheated its batteries; NASA's dust shield cleared moon dust from radiator surfaces in 2025.",
+      "sources": [
+        { "label": "NASA NTRS", "url": "https://ntrs.nasa.gov/api/citations/20100027339/downloads/20100027339.pdf" },
+        { "label": "NASA", "url": "https://www.nasa.gov/?p=829412" }
+      ]
+    },
+    {
+      "id": "D3", "pile": "day", "tag": "dilemma",
+      "title": "Before sunset",
+      "text": "Night is coming, and it will last two weeks. Spend today's sunlight on science, or save it?",
+      "options": [
+        { "label": "Run the seismometer survey", "effects": [{ "stars": 1 }, { "res": "power", "delta": -2 }] },
+        { "label": "Keep that power in the batteries", "effects": [], "forgoesReward": true }
+      ],
+      "specialist": { "who": "botanist", "label": "Run the grow lights on spare sunlight",
+        "effects": [{ "res": "power", "delta": -2 }, { "res": "food", "delta": 2, "inTurns": 1, "grows": true }] },
+      "protects": ["power"],
+      "realBasis": "A lunar night lasts about 14 Earth days, which limits solar power on the Moon.",
+      "sources": [{ "label": "BBC Sky at Night", "url": "https://www.skyatnightmagazine.com/news/nasa-nuclear-reactor-moon" }]
+    },
+    {
+      "id": "D4", "pile": "day", "tag": "opportunity",
+      "title": "Scout the lava-tube pit",
+      "text": "There's a deep pit nearby. It might lead to a cave, a natural shelter from solar storms.",
+      "options": [
+        { "label": "Rappel to the edge for a close survey",
+          "effects": [{ "stars": 2 }, { "badge": 1 }, { "res": "food", "delta": -1 }, { "flag": "cave" }] },
+        { "label": "Send the rover's camera instead",
+          "effects": [{ "stars": 1 }, { "res": "power", "delta": -1 }] }
+      ],
+      "realBasis": "Radar data suggests a pit in the Sea of Tranquility leads to a cave tens of metres long.",
+      "sources": [{ "label": "Nature Astronomy, 2024", "url": "https://ui.adsabs.harvard.edu/abs/2024NatAs...8.1119C" }]
+    },
+    {
+      "id": "D5", "pile": "day", "tag": "opportunity",
+      "title": "Plant a pick-and-eat garden",
+      "text": "A small salad rack that grows in water, without soil, would give the crew fresh food.",
+      "options": [
+        { "label": "Plant it",
+          "effects": [{ "res": "power", "delta": -1 }, { "res": "food", "delta": 2, "inTurns": 2, "grows": true }] },
+        { "label": "Not this time", "effects": [], "forgoesReward": true }
+      ],
+      "specialist": { "who": "botanist", "label": "Sprout fast microgreens",
+        "effects": [{ "res": "power", "delta": -1 }, { "res": "food", "delta": 2, "inTurns": 1, "grows": true }] },
+      "protects": ["food"],
+      "realBasis": "The CSA says moon crops would grow without soil (hydroponics or aeroponics), favouring quick pick-and-eat crops.",
+      "sources": [{ "label": "CSA", "url": "https://www.asc-csa.gc.ca/pdf/eng/youth-educators/activities/fitness-and-nutrition/interplanetary-farming.pdf" }]
+    },
+    {
+      "id": "D6", "pile": "day", "tag": "opportunity",
+      "title": "Long moonwalk to a crater",
+      "text": "A fresh crater 5 km away could hold rocks nobody has ever sampled.",
+      "options": [
+        { "label": "Drive out and sample it",
+          "effects": [{ "stars": 2 }, { "badge": 1 }, { "res": "food", "delta": -1 }],
+          "gamble": { "chance": 0.25, "onFail": [{ "stars": -1 }] } },
+        { "label": "Send the rover alone",
+          "effects": [{ "stars": 1 }, { "res": "power", "delta": -1 }] }
+      ],
+      "specialist": { "who": "doctor", "label": "Watch heart rates and pace the walk",
+        "effects": [{ "stars": 2 }, { "badge": 1 }, { "res": "food", "delta": -1 }] },
+      "realBasis": "Apollo flight surgeons used heart rates to judge effort during moonwalks; some early spacewalks were cut short by overheating.",
+      "sources": [
+        { "label": "Apollo experience report", "url": "https://core.ac.uk/works/24921387" },
+        { "label": "NASA NTRS", "url": "https://ntrs.nasa.gov/api/citations/19910001262/downloads/19910001262.pdf" }
+      ]
+    },
+    {
+      "id": "D7", "pile": "day", "tag": "opportunity",
+      "title": "Cargo lander arrives",
+      "text": "A robot lander has touched down nearby with supplies from Earth.",
+      "options": [
+        { "label": "Unload everything now",
+          "effects": [{ "res": "food", "delta": 3, "delivers": true }, { "badge": 1 }, { "stars": -1 }] },
+        { "label": "Drive out for only the food crates",
+          "effects": [{ "res": "food", "delta": 2, "delivers": true }, { "res": "power", "delta": -1 }] }
+      ],
+      "protects": ["food"],
+      "realBasis": "NASA buys robotic deliveries to the Moon from companies; planned deliveries include food, water, air and spare parts.",
+      "sources": [
+        { "label": "NASA", "url": "https://www.nasa.gov/commercial-lunar-payload-services/" },
+        { "label": "Universe Today", "url": "https://www.universetoday.com/articles/nasas-skyrocketing-need-for-cargo-deliveries-to-the-moon" }
+      ]
+    },
+    {
+      "id": "D8", "pile": "day", "tag": "crisis",
+      "title": "Micrometeoroid strike",
+      "text": "Tiny bits of rock from a nearby impact have pitted one of your solar panels.",
+      "options": [
+        { "label": "Swap the damaged panel outside",
+          "effects": [{ "badge": 1 }, { "res": "power", "delta": -1 }] },
+        { "label": "Live with it (less sunlight every Day)", "effects": [{ "sunlight": -1 }] }
+      ],
+      "specialist": { "who": "engineer", "label": "Reroute the wiring from inside",
+        "effects": [{ "res": "power", "delta": -2 }] },
+      "realBasis": "NASA's Lunar Reconnaissance Orbiter found new craters forming faster than models predicted.",
+      "sources": [{ "label": "NASA", "url": "https://www.nasa.gov/press-release/goddard/2016/lro-lunar-cratering" }]
+    },
+    {
+      "id": "N1", "pile": "night", "tag": "crisis",
+      "title": "Deep freeze",
+      "text": "Outside it's −130 °C, and the habitat walls are losing heat.",
+      "options": [
+        { "label": "Heaters on high", "effects": [{ "res": "power", "delta": -2 }] },
+        { "label": "Heat only the sleeping module and bundle up", "effects": [{ "res": "warmth", "delta": -1 }] }
+      ],
+      "specialist": { "who": "doctor", "label": "Take turns in the warm module while the doctor checks everyone",
+        "effects": [{ "stars": -1 }] },
+      "realBasis": "Nights near the lunar equator fall to about −130 °C.",
+      "sources": [{ "label": "NASA LRO", "url": "https://science.nasa.gov/wp-content/uploads/2024/01/lrolitho7temperaturevariation27may2014.pdf" }]
+    },
+    {
+      "id": "N2", "pile": "night", "tag": "crisis",
+      "title": "Frozen greenhouse water line",
+      "text": "A water pipe along the outer wall has iced up. The plants aren't getting water.",
+      "options": [
+        { "label": "Warm the pipe with a heater cable", "effects": [{ "res": "power", "delta": -1 }] },
+        { "label": "Fix it at sunrise (the plants go thirsty)", "effects": [{ "res": "food", "delta": -1 }] }
+      ],
+      "specialist": { "who": "botanist", "label": "Hand-water the plants from the reserve tank",
+        "effects": [{ "stars": -1 }] },
+      "realBasis": "Without heat, the lunar night breaks hardware: India's Chandrayaan-3 lander and the U.S. Odysseus lander never woke up after theirs.",
+      "sources": [{ "label": "SpacePolicyOnline", "url": "https://spacepolicyonline.com/?p=70088" }]
+    },
+    {
+      "id": "N3", "pile": "night", "tag": "crisis",
+      "title": "Moonquake",
+      "text": "The ground shakes for more than 10 minutes. Did any seals crack?",
+      "options": [
+        { "label": "Inspect and reseal every joint",
+          "effects": [{ "res": "power", "delta": -1 }, { "stars": -1 }] },
+        { "label": "Keep working", "effects": [],
+          "gamble": { "chance": 0.3333, "onFail": [{ "res": "warmth", "delta": -1, "forTurns": 2 }] } }
+      ],
+      "specialist": { "who": "engineer", "label": "Pressure-test the seals from the control panel",
+        "effects": [{ "res": "power", "delta": -1 }] },
+      "mini": "leak",
+      "realBasis": "Apollo seismometers recorded shallow moonquakes up to magnitude 5.5 that shook for more than 10 minutes.",
+      "sources": [{ "label": "NASA", "url": "https://science.nasa.gov/moon/moonquakes" }]
+    },
+    {
+      "id": "N4", "pile": "night", "tag": "crisis",
+      "title": "Battery getting cold",
+      "text": "One battery pack sits in an unheated bay. Cold batteries hold less charge.",
+      "options": [
+        { "label": "Move it into the warm module (it shares your heat)", "effects": [{ "res": "warmth", "delta": -1 }] },
+        { "label": "Leave it", "effects": [{ "res": "power", "delta": -2 }] }
+      ],
+      "specialist": { "who": "engineer", "label": "Wrap it in spare insulation", "effects": [{ "stars": -1 }] },
+      "protects": ["power"],
+      "realBasis": "Japan's SLIM lander survived lunar nights, but some of its battery cells began to fail afterward.",
+      "sources": [{ "label": "SpacePolicyOnline", "url": "https://spacepolicyonline.com/?p=70088" }]
+    },
+    {
+      "id": "N5", "pile": "night", "tag": "opportunity",
+      "title": "Call with students on Earth",
+      "text": "Earth hangs in your night sky, so the radio link is easy. A school wants to talk to you!",
+      "options": [
+        { "label": "Live video call", "effects": [{ "stars": 2 }, { "res": "power", "delta": -2 }] },
+        { "label": "Send a recording now and do a live Q&A at sunrise",
+          "effects": [{ "stars": 1 }, { "stars": 1, "inTurns": 1 }, { "res": "power", "delta": -1, "inTurns": 1 }] }
+      ],
+      "realBasis": "A message from the Moon to Earth takes only seconds to arrive.",
+      "sources": [{ "label": "NASA NTRS", "url": "https://ntrs.nasa.gov/citations/20250000703" }]
+    },
+    {
+      "id": "N6", "pile": "night", "tag": "dilemma",
+      "title": "Rover left outside",
+      "text": "The rover is parked in the open for the two-week night.",
+      "options": [
+        { "label": "Keep its survival heater on", "effects": [{ "res": "power", "delta": -1 }] },
+        { "label": "Let it freeze and hope it restarts", "effects": [],
+          "gamble": { "chance": 0.5, "onFail": [{ "stars": -2, "inTurns": 1 }] } }
+      ],
+      "realBasis": "Most landers without a heat source haven't survived the lunar night.",
+      "sources": [{ "label": "New Atlas", "url": "https://newatlas.com/space/japans-slim-lunar-lander-alive/" }]
+    },
+    {
+      "id": "N7", "pile": "night", "tag": "crisis",
+      "title": "Mold in the greenhouse",
+      "text": "Damp leaves have started to grow mold.",
+      "options": [
+        { "label": "Pull out the sick plants", "effects": [{ "res": "food", "delta": -2 }] },
+        { "label": "Dry them out with the fans on high", "effects": [{ "res": "power", "delta": -1 }],
+          "gamble": { "chance": 0.3333, "onFail": [{ "res": "food", "delta": -2, "inTurns": 1 }] } }
+      ],
+      "specialist": { "who": "botanist", "label": "Cut away the dead leaves, then wipe and dry the plants",
+        "effects": [{ "stars": -1 }] },
+      "protects": ["food"],
+      "realBasis": "Mold grew on the ISS zinnias in 2015 after too much water; Scott Kelly cleaned and dried them and saved two of the four.",
+      "sources": [
+        { "label": "Space.com", "url": "https://www.space.com/31556-space-fungus-attacks-space-station-plants.html" },
+        { "label": "Space.com", "url": "https://www.space.com/31702-how-this-flower-was-saved-from-space-station-mold.html" }
+      ]
+    },
+    {
+      "id": "N8", "pile": "night", "tag": "crisis",
+      "title": "Can't sleep in the long dark",
+      "text": "Two weeks without a sunrise is scrambling the crew's body clocks.",
+      "options": [
+        { "label": "Give the crew a rest day", "effects": [{ "stars": -1 }] },
+        { "label": "Keep the schedule", "effects": [],
+          "gamble": { "chance": 0.3333, "onFail": [{ "res": "power", "delta": -2 }] } }
+      ],
+      "specialist": { "who": "doctor", "label": "Set the cabin lights to a day–night colour cycle",
+        "effects": [{ "res": "power", "delta": -1 }] },
+      "realBasis": "The ISS switched to LED lights that can shift colour to help astronauts stay alert or get sleepy.",
+      "sources": [{ "label": "Space.com", "url": "https://www.space.com/35997-led-lights-help-astronauts-sleep-better.html" }]
+    },
+    {
+      "id": "N9", "pile": "night", "tag": "opportunity",
+      "title": "Two weeks of dark sky",
+      "text": "With no air and a slow-turning Moon, a telescope can stare at one target for days.",
+      "options": [
+        { "label": "Set up the telescope outside and track one galaxy all night",
+          "effects": [{ "stars": 2 }, { "badge": 1 }, { "res": "power", "delta": -1 }] },
+        { "label": "Photograph the sky from a window (the cover lets heat out)",
+          "effects": [{ "stars": 1 }, { "res": "warmth", "delta": -1 }] }
+      ],
+      "realBasis": "China's Chang'E 3 lander ran an ultraviolet telescope on the Moon; with no air and slow rotation it could watch one target for long stretches.",
+      "sources": [
+        { "label": "EPSC 2015", "url": "https://meetingorganizer.copernicus.org/EPSC2015/EPSC2015-154-2.pdf" },
+        { "label": "Astronomy", "url": "https://www.astronomy.com/observing/exploring-the-moon-chinas-change-missions/" }
+      ]
+    }
+  ]
+}

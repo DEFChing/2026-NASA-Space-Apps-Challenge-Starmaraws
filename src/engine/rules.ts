@@ -64,7 +64,7 @@ export function planCost(s: GameState, level: LevelConfig, plan: DailyPlan): num
 /** Power an option takes right now (step 2). Later and repeating costs don't count. */
 export function nowPowerCost(opt: Option): number {
   return opt.effects
-    .filter(e => e.res === "power" && (e.delta ?? 0) < 0 && !(e.inTurns ?? 0) && !e.repeat)
+    .filter(e => e.res === "power" && (e.delta ?? 0) < 0 && !(e.inTurns ?? 0) && !e.onTurns)
     .reduce((n, e) => n - (e.delta ?? 0), 0);
 }
 
@@ -169,10 +169,10 @@ function queue(s: GameState, due: number, effect: Effect, cause: string, T: Turn
 /**
  * Apply an effect now or queue it. `inTurns` delays it; `forTurns` repeats a
  * res/stars/badge change on several turns in a row, or sets how long a sunlight change
- * lasts; `repeat: "dayTurns"` lands it at step 6 of this turn and every Day turn left.
+ * lasts; `onTurns: "day"` lands it at step 6 of this turn and every Day turn left.
  */
 function schedule(s: GameState, level: LevelConfig, e: Effect, cause: string, T: Turn) {
-  const { inTurns = 0, forTurns, repeat, sunlight, ...rest } = e;
+  const { inTurns = 0, forTurns, onTurns, sunlight, grows: _g, delivers: _d, ...rest } = e;
   if (sunlight) {
     const from = T.t + inTurns;
     if (inTurns === 0) addSunMod(s, sunlight, from, forTurns, T, cause);
@@ -180,7 +180,7 @@ function schedule(s: GameState, level: LevelConfig, e: Effect, cause: string, T:
   }
   const hasRest = rest.res !== undefined || rest.stars || rest.badge || rest.flag;
   if (!hasRest) return;
-  if (repeat === "dayTurns") {
+  if (onTurns === "day") {
     for (let d = T.t + inTurns; d <= T.last; d++) if (isDayTurn(level, d)) queue(s, d, rest, cause, T);
     return;
   }
@@ -197,7 +197,7 @@ function landDue(s: GameState, level: LevelConfig, T: Turn, which: "sun" | "othe
   const due = s.pending.filter(p => p.due === T.t && (which === "sun") === isSun(p.effect));
   s.pending = s.pending.filter(p => !due.includes(p));
   for (const p of due) {
-    // Effects queued earlier this same turn (repeat: "dayTurns") aren't "delayed".
+    // Effects queued earlier this same turn (onTurns: "day") aren't "delayed".
     if (p.fromTurn !== T.t) T.ev.push({ type: "delayed", cause: p.cause, fromTurn: p.fromTurn });
     if (p.effect.sunlight) addSunMod(s, p.effect.sunlight, T.t, p.effect.forTurns, T, p.cause);
     else apply(s, level, p.effect, T, p.cause);

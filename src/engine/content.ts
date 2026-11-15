@@ -5,11 +5,10 @@
 
 // Loads level and card JSON. Every data file wraps its data next to a `_meta` block
 // (the SI disclosure), e.g. { "_meta": {...}, "level": {...} }, so we unwrap it here
-// and check the parts the engine relies on. Step 2's check-cards adds the full
-// card-writing rules on top.
+// and check the parts the engine relies on. The card-writing (truth) rules are in
+// cardRules.ts, which check-cards and data.ts run on top.
 
-import { nowPowerCost } from "./rules";
-import type { Card, Effect, LevelConfig, Pile, Res, Specialist, Tag } from "./types";
+import type { Card, Effect, LevelConfig, Option, Pile, Res, Specialist, Tag } from "./types";
 
 const RES: Res[] = ["power", "warmth", "food"];
 const PILES: Pile[] = ["opener", "day", "night"];
@@ -64,16 +63,19 @@ function checkEffects(file: string, where: string, effects: Effect[]) {
   if (!Array.isArray(effects)) fail(file, `${where}: effects must be a list`);
   for (const e of effects) {
     if (e.res !== undefined && !RES.includes(e.res)) fail(file, `${where}: unknown bar "${e.res}"`);
-    if (e.badge !== undefined && e.badge < 0) fail(file, `${where}: radiation only goes up`);
     if (e.flag !== undefined && !FLAGS.includes(e.flag)) fail(file, `${where}: unknown flag "${e.flag}"`);
-    if (e.repeat && (e.forTurns || e.sunlight)) fail(file, `${where}: repeat can't be combined with forTurns or sunlight`);
-    if (e.res === "power" && (e.delta ?? 0) > 0) fail(file, `${where}: Power only comes from sunlight`);
-    if (e.res === "warmth" && (e.delta ?? 0) > 0) fail(file, `${where}: Warmth only comes from sunlight`);
-    if ((e.sunlight ?? 0) > 0) fail(file, `${where}: cards can't add sunlight`);
+    if (e.onTurns !== undefined && e.onTurns !== "day") fail(file, `${where}: onTurns can only be "day"`);
+    if (e.onTurns && (e.forTurns || e.sunlight)) fail(file, `${where}: onTurns can't be combined with forTurns or sunlight`);
+    for (const k of ["delta", "stars", "badge", "sunlight", "forTurns", "inTurns"] as const) {
+      if (e[k] !== undefined && !Number.isInteger(e[k])) fail(file, `${where}: ${k} must be a whole number`);
+    }
   }
 }
 
-/** Unwrap and check a card file: { "_meta": ..., "cards": [...] }. */
+/**
+ * Unwrap a card file, { "_meta": ..., "cards": [...] }, and check its shape: ids, piles,
+ * tags, two options, specialist names. The truth rules live in cardRules.ts.
+ */
 export function loadCards(json: unknown, file = "card file"): Card[] {
   const cards = (json as { cards?: Card[] })?.cards;
   if (!Array.isArray(cards)) fail(file, `expected { "_meta": ..., "cards": [...] }`);
@@ -83,22 +85,24 @@ export function loadCards(json: unknown, file = "card file"): Card[] {
     ids.add(c.id);
     if (!PILES.includes(c.pile)) fail(file, `${c.id}: pile must be opener, day or night`);
     if (!TAGS.includes(c.tag)) fail(file, `${c.id}: tag must be crisis, dilemma or opportunity`);
+    if (!c.title || !c.text) fail(file, `${c.id}: needs a title and text`);
     if (c.options?.length !== 2) fail(file, `${c.id}: needs exactly 2 options`);
-    const all = [...c.options, ...(c.specialist ? [c.specialist] : [])];
-    all.forEach((o, i) => {
-      const where = `${c.id} option ${i === 2 ? "specialist" : i === 0 ? "A" : "B"}`;
-      checkEffects(file, where, o.effects);
-      if (o.gamble) {
-        if (!(o.gamble.chance > 0 && o.gamble.chance < 1)) fail(file, `${where}: gamble chance must be between 0 and 1`);
-        checkEffects(file, `${where} (gamble)`, o.gamble.onFail);
-      }
-    });
     if (c.specialist && !WHO.includes(c.specialist.who)) fail(file, `${c.id}: unknown specialist "${c.specialist.who}"`);
-    // Card-writing rule 6: always answerable, even with an empty battery.
-    if (c.pile !== "opener" && !c.options.some(o => nowPowerCost(o) === 0)) {
-      fail(file, `${c.id}: needs an option with no Power cost right now (rule 6)`);
-    }
-    if (!Array.isArray(c.sources) || !c.sources.length) fail(file, `${c.id}: needs at least one source`);
+    optionsOf(c).forEach(({ where, option }) => {
+      if (!option.label) fail(file, `${c.id} ${where}: needs a label`);
+      checkEffects(file, `${c.id} ${where}`, option.effects);
+      if (option.gamble) checkEffects(file, `${c.id} ${where} (gamble)`, option.gamble.onFail);
+    });
+    if (!Array.isArray(c.sources)) fail(file, `${c.id}: sources must be a list`);
   }
   return cards;
+}
+
+/** Every option on a card with a readable name: "option A", "option B", "specialist option". */
+export function optionsOf(c: Card): { where: string; option: Option }[] {
+  return [
+    { where: "option A", option: c.options[0] },
+    { where: "option B", option: c.options[1] },
+    ...(c.specialist ? [{ where: `${c.specialist.who} option`, option: c.specialist as Option }] : []),
+  ];
 }
