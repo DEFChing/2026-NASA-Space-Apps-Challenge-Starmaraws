@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "si": {
+      "generated": true,
+      "tool": "Claude (Anthropic)",
+      "how": "First-pass numbers from the Game Design Spec v2 (Moon Outpost); to be tuned with the run checker",
+      "humanReviewed": true
+    }
+  },
+  "level": {
+    "id": "moon",
+    "turns": 8,
+    "starTarget": 7,
+    "start": { "power": 8, "warmth": 8, "food": 6 },
+    "max":   { "power": 10, "warmth": 10, "food": 10 },
+    "day":   { "sunlight": 6, "warmth": 2 },
+    "night": { "sunlight": 0, "warmth": -2, "warmthInsulated": -1 },
+    "upkeep": [{ "res": "food", "delta": -1 }],
+    "slots": {
+      "heater":      { "max": 2, "nightOnly": true },
+      "greenhouse":  { "max": 2, "foodPerCell": 1 },
+      "experiments": { "cellsPerStar": 2 },
+      "shelter":     { "cells": 2, "cellsWithCave": 0 }
+    },
+    "radiation": { "limit": 12, "drip": 1, "stormOpen": 5, "stormSheltered": 1 },
+    "piles": { "opener": [0], "day": [2, 4, 6], "night": [1, 3, 5, 7] }
+  }
+}
