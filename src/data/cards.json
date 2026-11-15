@@ -32,8 +32,13 @@
         { "label": "Run the radiator pumps hard", "effects": [{ "res": "power", "delta": -1 }] },
         { "label": "Pause outdoor work through midday", "effects": [{ "stars": -1 }] }
       ],
-      "realBasis": "Daytime temperatures near the lunar equator reach about 120 °C.",
-      "sources": [{ "label": "NASA LRO", "url": "https://science.nasa.gov/wp-content/uploads/2024/01/lrolitho7temperaturevariation27may2014.pdf" }]
+      "specialist": { "who": "doctor", "label": "Shift the crew's sleep: rest through the midday heat, work in the cooler hours",
+        "effects": [], "gamble": { "chance": 0.25, "onFail": [{ "stars": -1 }] } },
+      "realBasis": "Daytime temperatures near the lunar equator reach about 120 °C; on the ISS, flight surgeons help crews manage the fatigue that comes when their sleep schedule has to shift.",
+      "sources": [
+        { "label": "NASA LRO", "url": "https://science.nasa.gov/wp-content/uploads/2024/01/lrolitho7temperaturevariation27may2014.pdf" },
+        { "label": "NASA NTRS", "url": "https://ntrs.nasa.gov/citations/20110015940" }
+      ]
     },
     {
       "id": "D2", "pile": "day", "tag": "crisis",

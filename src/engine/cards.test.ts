@@ -27,11 +27,11 @@ describe("the real cards", () => {
     expect(ids).toEqual(["B0", ...[1, 2, 3, 4, 5, 6, 7, 8].map(n => `D${n}`), ...[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `N${n}`)]);
   });
 
-  test("specialist options sit on the cards the spec lists", () => {
+  test("specialist options sit on the cards the spec lists: 4 each, 2 Day and 2 Night", () => {
     const of = (who: Specialist) => moonCards.filter(c => c.specialist?.who === who).map(c => c.id);
     expect(of("engineer")).toEqual(["D2", "D8", "N3", "N4"]);
     expect(of("botanist")).toEqual(["D3", "D5", "N2", "N7"]);
-    expect(of("doctor")).toEqual(["D6", "N1", "N8"]);
+    expect(of("doctor")).toEqual(["D1", "D6", "N1", "N8"]);
   });
 
   test("the file carries its SI disclosure", () => {
