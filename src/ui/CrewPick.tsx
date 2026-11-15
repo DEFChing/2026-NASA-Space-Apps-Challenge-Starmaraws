@@ -6,6 +6,7 @@ import { moonCards } from "../engine/data";
 import type { Difficulty } from "../engine/solver";
 import type { Specialist } from "../engine/types";
 import { Art } from "./Art";
+import { SettingsButton } from "./SettingsPanel";
 import { COMMANDER, CREW } from "./text";
 
 interface Props {
@@ -63,7 +64,10 @@ export function CrewPick({ difficulty, checking, error, onDifficulty, onPick, on
         ))}
       </div>
       {error && <p className="error" role="alert">{error}</p>}
-      {onBack && <button className="link" data-testid="crew-back" onClick={onBack}>Back to the title</button>}
+      <div className="links">
+        {onBack && <button className="link" data-testid="crew-back" onClick={onBack}>Back to the title</button>}
+        <SettingsButton className="link" />
+      </div>
     </section>
   );
 }

@@ -103,6 +103,7 @@ describe("whole runs", () => {
       g().lockSplit();
       expect(g().phase).toBe("card");
       await g().choose(m.choice);
+      if (g().phase === "mini") await g().finishMini(false);   // the checker's path assumes it failed
       if (g().phase === "report") g().nextTurn();
     }
     expect(g().phase).toBe("over");
@@ -123,6 +124,7 @@ describe("whole runs", () => {
       g().lockSplit();
       const free = g().choices.find(c => c.affordable)!;
       await g().choose(free.choice);
+      if (g().phase === "mini") await g().finishMini(false);
       if (g().phase === "report") g().nextTurn();
     }
     expect(g().state!.status).toBe("lost");

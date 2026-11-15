@@ -3,7 +3,10 @@
  * model, then reviewed, edited and tested by the Junior Astronaut team. See AI_USAGE.md.
  */
 import { badgeColour } from "../engine/rules";
+import { STATUS_ICON } from "./ResourceBar";
 import { badgeText } from "./text";
+
+const BADGE_ICON = { green: STATUS_ICON.ok, yellow: STATUS_ICON.warning, red: STATUS_ICON.emergency } as const;
 
 /** 12 squares filling green, yellow, red. */
 export function RadiationBadge({ pips, limit }: { pips: number; limit: number }) {
@@ -15,7 +18,9 @@ export function RadiationBadge({ pips, limit }: { pips: number; limit: number })
           <span key={i} className={`pip ${i < pips ? `pip-${badgeColour(i + 1)}` : ""}`} />
         ))}
       </div>
-      <div className={`badge-text badge-${badgeColour(pips)}`}>{pips} of {limit} · {badgeText(pips)}</div>
+      <div className={`badge-text badge-${badgeColour(pips)}`}>
+        <span aria-hidden="true" className="icon">{BADGE_ICON[badgeColour(pips)]}</span> {pips} of {limit} · {badgeText(pips)}
+      </div>
     </div>
   );
 }

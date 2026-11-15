@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from "react";
 import { playSfx } from "../store/game";
+import { useSettings } from "./settings";
 import { Art } from "./Art";
 import { artUrl } from "./artFiles";
 import type { Ending } from "./story";
@@ -17,7 +18,8 @@ import type { Ending } from "./story";
 export const GLITCH_MS = 500, LIFT_MS = 1000;
 type Stage = "glitch" | "lift" | "amara";
 
-const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** The player's reduce-motion setting (it starts from the computer's own setting). */
+const reduced = () => useSettings.getState().settings.reduceMotion;
 
 /** mentor_amara frames: 0 smiling, 1 smiling and talking, 2 thoughtful, 3 thoughtful and talking. */
 export const amaraFrame = (mood: Ending["mood"], talking: boolean) => (mood === "smile" ? 0 : 2) + (talking ? 1 : 0);

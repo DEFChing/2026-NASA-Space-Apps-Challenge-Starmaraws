@@ -125,6 +125,12 @@ export interface TurnRecord {
   locked: { choice: Choice; label: string; cost: number; spare: number }[];
 }
 
+/** The report line when a mini-moment went well (Spec: it can only lower a cost). */
+export const MINI_SAVED: Record<"dust" | "leak", string> = {
+  dust: "You scrubbed the radiators clean in time: no Star lost.",
+  leak: "You found the leak with the detector: no Star lost.",
+};
+
 /** Short lines describing what happened this turn, in the order it happened. */
 export function reportLines(rec: TurnRecord, ctx: Ctx): string[] {
   const lines: string[] = [];
@@ -154,6 +160,9 @@ export function reportLines(rec: TurnRecord, ctx: Ctx): string[] {
         break;
       case "delayed":
         delayed.set(e.cause, e.fromTurn);
+        break;
+      case "mini":
+        lines.push(MINI_SAVED[e.kind]);
         break;
       case "starsBlocked":
         lines.push(e.why === "shelter"

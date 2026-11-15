@@ -23,6 +23,7 @@ export type Step =
   | { kind: "badge"; amount: number; cause: string }
   | { kind: "storm"; sheltered: boolean; pips: number }
   | { kind: "delayed"; cause: string; fromTurn: number }
+  | { kind: "mini" }
   | { kind: "flag"; flag: Flag }
   | { kind: "sunMod"; delta: number }
   | { kind: "status"; status: "warning" | "emergency" | "recovered"; res: Res }
@@ -72,6 +73,7 @@ export function planTurn(events: GameEvent[], info: TurnInfo): Step[] {
       case "gamble": showCard(); steps.push({ kind: "gamble", failed: e.failed }); break;
       case "storm": steps.push({ kind: "storm", sheltered: e.sheltered, pips: e.pips }); break;
       case "delayed": steps.push({ kind: "delayed", cause: e.cause, fromTurn: e.fromTurn }); break;
+      case "mini": showCard(); steps.push({ kind: "mini" }); break;
       case "warning": case "emergency": case "recovered":
         steps.push({ kind: "status", status: e.type, res: e.res }); break;
       case "end": steps.push({ kind: "end", status: e.status }); break;

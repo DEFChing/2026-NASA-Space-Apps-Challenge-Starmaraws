@@ -5,7 +5,8 @@
 
 // The React overlay over the Phaser canvas: the HUD, plus one panel for the current phase.
 
-import { shelterCost } from "../engine/rules";
+import { useEffect } from "react";
+import { isDayTurn, shelterCost } from "../engine/rules";
 import type { Res } from "../engine/types";
 import { useGame } from "../store/game";
 import { CardView } from "./CardView";
@@ -16,9 +17,12 @@ import { FirstRunTip } from "./FirstRunTip";
 import { Forecast } from "./Forecast";
 import { Intro } from "./Intro";
 import { Landing } from "./Landing";
+import { NewWord } from "./NewWord";
 import { PowerSplit } from "./PowerSplit";
 import { RadiationBadge } from "./RadiationBadge";
 import { ResourceBar } from "./ResourceBar";
+import { MiniMoment } from "./MiniMoment";
+import { SettingsButton } from "./SettingsPanel";
 import { StormAlert } from "./StormAlert";
 import { Title } from "./Title";
 import { TurnReport } from "./TurnReport";
@@ -30,6 +34,14 @@ const BARS: Res[] = ["power", "warmth", "food"];
 export function GameScreen() {
   const g = useGame();
   const { phase, state, ctx } = g;
+  useEffect(() => {
+    // Space or Escape speeds up the outpost animation (as the Skip button does).
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.key === " " || e.key === "Escape") && useGame.getState().animating) { e.preventDefault(); useGame.getState().skipAnimations(); }
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, []);
 
   if (phase === "title") {
     return (
@@ -71,7 +83,10 @@ export function GameScreen() {
           <div className="stars" data-testid="stars">Stars: {hud.stars} of {ctx.level.starTarget}</div>
           <TurnTracker ctx={ctx} turn={hudTurn} />
         </div>
-        <RadiationBadge pips={hud.badge} limit={ctx.level.radiation.limit} />
+        <div className="hud-right">
+          <RadiationBadge pips={hud.badge} limit={ctx.level.radiation.limit} />
+          <SettingsButton />
+        </div>
       </header>
 
       <main className="stage">
@@ -85,10 +100,11 @@ export function GameScreen() {
           <section className="briefing" aria-label="Morning briefing">
             <h2 data-testid="turn-label">{turnLabel(ctx, turn)}</h2>
             <Forecast odds={nextForecast(ctx, turn)} />
+            {(() => { const w = isDayTurn(ctx.level, turn) ? "lunar day" : "lunar night"; return <NewWord key={w} word={w} />; })()}
             {g.firstRun && turn === 0 && <FirstRunTip onDismiss={g.dismissTip} />}
             {storm
               ? <StormAlert shelterCells={shelterCost(state, ctx.level)} date={ctx.weather[turn].date} link={ctx.weather[turn].link} onAnswer={s => g.toSplit(s)} />
-              : <button className="primary" data-testid="start-day" onClick={() => g.toSplit(false)}>Plan the day</button>}
+              : <button className="primary" data-testid="start-day" onClick={() => g.toSplit(false)} autoFocus>Plan the day</button>}
           </section>
         )}
 
@@ -101,6 +117,10 @@ export function GameScreen() {
 
         {phase === "card" && (
           <CardView card={card} choices={g.choices} specialist={g.specialist} onChoose={c => void g.choose(c)} />
+        )}
+
+        {phase === "mini" && card.mini && (
+          <MiniMoment key={turn} kind={card.mini} seed={state.seed * 31 + turn} onDone={done => void g.finishMini(done)} />
         )}
 
         {!g.animating && phase === "report" && lastRecord && (

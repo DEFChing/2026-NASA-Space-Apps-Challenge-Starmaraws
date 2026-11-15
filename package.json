@@ -33,7 +33,9 @@
     "fetch-donki": "tsx scripts/fetch-donki.ts",
     "check-weather": "tsx scripts/check-weather.ts",
     "import-credits": "tsx scripts/import-credits.ts",
-    "build-forecast": "tsx scripts/build-forecast.ts"
+    "build-forecast": "tsx scripts/build-forecast.ts",
+    "check-demo": "tsx scripts/check-demo.ts",
+    "scan-seeds": "tsx scripts/scan-seeds.ts"
   },
   "dependencies": {
     "phaser": "^4.2.1",

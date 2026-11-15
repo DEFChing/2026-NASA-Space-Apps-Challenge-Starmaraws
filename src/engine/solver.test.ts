@@ -9,7 +9,7 @@ import { smarterDraw, swapCandidates, swapIn } from "./draw";
 import { resolveTurn } from "./rules";
 import { newRun } from "./run";
 import {
-  analyse, DIFFICULTY_BANDS, difficultyOf, findSeed, isWinnable, legalSplits, winShare,
+  analyse, bandsFor, DIFFICULTY_BANDS, difficultyOf, PRACTICE_BANDS, findSeed, isWinnable, legalSplits, winShare,
 } from "./solver";
 import type { Card, LevelConfig } from "./types";
 
@@ -112,9 +112,19 @@ describe("seeds and difficulty", () => {
   test("difficulty bands", () => {
     expect(difficultyOf(0.3)).toBe("rookie");
     expect(difficultyOf(DIFFICULTY_BANDS.rookie)).toBe("rookie");
-    expect(difficultyOf(0.01)).toBe("pilot");
-    expect(difficultyOf(0.001)).toBe("commander");
+    expect(difficultyOf(0.1)).toBe("pilot");
+    expect(difficultyOf(DIFFICULTY_BANDS.pilot)).toBe("pilot");
+    expect(difficultyOf(0.01)).toBe("commander");
     expect(difficultyOf(0)).toBe("commander");
+  });
+
+  test("practice weather keeps the gentler Step 4 bands; real DONKI weather uses the retuned ones", () => {
+    const practice = startRun(1000, "doctor").ctx;
+    expect(practice.weatherStart).toBeUndefined();
+    expect(bandsFor(practice)).toBe(PRACTICE_BANDS);
+    expect(bandsFor({ ...practice, weatherStart: "2017-09-01" })).toBe(DIFFICULTY_BANDS);
+    expect(difficultyOf(0.05, PRACTICE_BANDS)).toBe("rookie");
+    expect(difficultyOf(0.05)).toBe("pilot");
   });
 
   test("the same seed and specialist give the same result", () => {

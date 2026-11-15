@@ -139,6 +139,7 @@ export type GameEvent =
   | { type: "storm"; sheltered: boolean; pips: number; date?: string }
   | { type: "gamble"; cardId: string; failed: boolean }
   | { type: "delayed"; cause: string; fromTurn: number }
+  | { type: "mini"; cardId: string; kind: "dust" | "leak"; savedStars: number }
   | { type: "flag"; flag: Flag; cause: string }
   | { type: "warning" | "emergency" | "recovered"; res: Res }
   | { type: "end"; status: "won" | "lost"; lostBy?: LostBy };

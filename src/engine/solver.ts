@@ -107,7 +107,12 @@ export function isWinnable(start: GameState, ctx: Ctx, limit = 3_000_000): WinCh
   return { winnable: won ? true : gaveUp ? null : false, path: won ? path : [], resolves };
 }
 
-/** Share of random players who win from `start` (gambles fail). Seeded, so repeatable. */
+/**
+ * Share of random players who win from `start` (gambles fail). Seeded, so repeatable.
+ * They heed the storm alarm (shelter whenever it sounds and they can afford it) and play
+ * at random otherwise: a player who ignores the loudest warning in the game loses almost
+ * every storm seed, which made storm seeds all look hard and kept storms out of Rookie.
+ */
 export function winShare(start: GameState, ctx: Ctx, players = 1000, seed = start.seed): number {
   if (start.status !== "playing") return start.status === "won" ? 1 : 0;
   const rand = mulberry32((seed ^ 0x2c1b3c6d) >>> 0);
@@ -115,7 +120,9 @@ export function winShare(start: GameState, ctx: Ctx, players = 1000, seed = star
   for (let i = 0; i < players; i++) {
     let s = start;
     while (s.status === "playing") {
-      const plans = legalSplits(s, ctx);
+      const all = legalSplits(s, ctx);
+      const sheltered = all.filter(p => p.shelter);
+      const plans = sheltered.length ? sheltered : all;
       const plan = plans[Math.floor(rand() * plans.length)];
       const options = choicesFor(s, ctx, plan).filter(c => c.affordable);
       const pick = options[Math.floor(rand() * options.length)];
@@ -129,12 +136,21 @@ export function winShare(start: GameState, ctx: Ctx, players = 1000, seed = star
 export type Difficulty = "rookie" | "pilot" | "commander";
 
 /**
- * Difficulty bands by random-player win share, measured on 450 seeds with Day +1 /
- * Night −4 (−3) warmth: Rookie ≥ 3% (about 32% of winnable seeds), Pilot 0.3–3%
- * (about 22%), Commander under 0.3% but still winnable (about 47%); 94% of seeds were
- * winnable. Retune when cards or level numbers change.
+ * Difficulty bands by random-player win share (gambles failing, storm alarms heeded),
+ * retuned in Step 8 on 1,200 seeds with the real DONKI archive (2010–2026), where storms
+ * hit about 15% of turns. Rookie ≥ 20%: about 29% of seeds, typical share 0.31 (higher
+ * once gambles roll for real), 1 in 5 with a real storm; Pilot 3–20%: about 36%;
+ * Commander under 3% but winnable: about 30%; 95% of seeds were winnable. Random players
+ * mostly lose on Power, then on Stars. Each extra storm is what makes a seed harder.
+ * (The Step 4 bands, 3% and 0.3%, were set on harsher practice weather.)
+ * Retune when cards, level numbers or the archive change: npm run scan-seeds.
  */
-export const DIFFICULTY_BANDS = { rookie: 0.03, pilot: 0.003 } as const;
+export const DIFFICULTY_BANDS = { rookie: 0.2, pilot: 0.03 } as const;
+
+/** Practice weather (no archive downloaded yet) is harsher, so it keeps the Step 4 bands; otherwise Rookie seeds get rare and slow to find. */
+export const PRACTICE_BANDS = { rookie: 0.03, pilot: 0.003 } as const;
+
+export type Bands = { rookie: number; pilot: number };
 
 /**
  * Search limit when choosing seeds or helping mid-run: about 2 seconds at most. A seed
@@ -143,9 +159,12 @@ export const DIFFICULTY_BANDS = { rookie: 0.03, pilot: 0.003 } as const;
  */
 export const QUICK_LIMIT = 400_000;
 
-export function difficultyOf(share: number): Difficulty {
-  return share >= DIFFICULTY_BANDS.rookie ? "rookie" : share >= DIFFICULTY_BANDS.pilot ? "pilot" : "commander";
+export function difficultyOf(share: number, bands: Bands = DIFFICULTY_BANDS): Difficulty {
+  return share >= bands.rookie ? "rookie" : share >= bands.pilot ? "pilot" : "commander";
 }
+
+/** Real DONKI weather has a start date; practice weather doesn't. */
+export const bandsFor = (ctx: Ctx): Bands => (ctx.weatherStart ? DIFFICULTY_BANDS : PRACTICE_BANDS);
 
 export interface Analysis {
   winnable: boolean | null;
@@ -160,7 +179,7 @@ export function analyse(start: GameState, ctx: Ctx, players = 1000, limit?: numb
   const check = isWinnable(start, ctx, limit);
   if (!check.winnable) return { ...check, winShare: 0, difficulty: null };
   const share = winShare(start, ctx, players);
-  return { ...check, winShare: share, difficulty: difficultyOf(share) };
+  return { ...check, winShare: share, difficulty: difficultyOf(share, bandsFor(ctx)) };
 }
 
 export type MakeRun = (seed: number, specialist: Specialist) => { state: GameState; ctx: Ctx };

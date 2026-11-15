@@ -466,7 +466,7 @@
     "type": "data",
     "tool": "Claude (Anthropic)",
     "how": "Computed from the NASA DONKI archive by scripts/build-forecast.ts; no number written by hand",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/engine/codes.ts",
@@ -572,5 +572,96 @@
     "tool": "Claude (Anthropic)",
     "how": "Drafted a test that catches file names differing only by case",
     "humanReviewed": true
+  },
+  {
+    "path": "src/ui/settings.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the settings store that applies large text, reduce motion and sound levels",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/SettingsPanel.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the settings dialog (volumes, mute, reduce motion, large text) and its button",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/NewWord.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the one-time plain-word explanations for new terms",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/access.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for settings, keyboard play, status icons and new-word hints",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/Credits.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the Credits screen, including the \"Made with help from AI\" section built from si-manifest.json",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/credits.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for the Credits screen",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/data/team.json",
+    "type": "data",
+    "tool": "Claude (Anthropic)",
+    "how": "Set up the empty team list the Credits screen reads",
+    "humanReviewed": false
+  },
+  {
+    "path": "scripts/check-demo.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the check that the demo mission codes still give the rehearsed runs",
+    "humanReviewed": false
+  },
+  {
+    "path": "scripts/scan-seeds.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the seed scan used to retune difficulty bands and pick demo codes",
+    "humanReviewed": false
+  },
+  {
+    "path": "DEMO.md",
+    "type": "doc",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the demo sheet; the codes were picked by the run checker from real-data seeds",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/cellDrag.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the rules for dragging power cells between slots",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/MiniMoment.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the two mini-moments (scrub the radiators, find the leak)",
+    "humanReviewed": false
+  },
+  {
+    "path": "src/ui/feel.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for cell dragging and the mini-moments",
+    "humanReviewed": false
   }
 ]

@@ -234,7 +234,17 @@ function playCard(s: GameState, ctx: Ctx, choice: Choice, mode: TurnMode, T: Tur
   if (!opt) throw new Error(`${card.id} has no "${choice}" option for the ${s.specialist}`);
   const cost = nowPowerCost(opt);
   if (cost > s.res.power) throw new Error(`${card.id}: needs ${cost} Power, only ${s.res.power} left after the split`);
-  for (const e of opt.effects) schedule(s, ctx.level, e, card.id, T);
+  const mini = mode.miniDone ? miniFor(card, choice) : null;
+  for (const e of opt.effects) {
+    if (mini && (e.stars ?? 0) < 0) {
+      // A mini-moment can only lower a cost: the Star loss goes, anything else in the effect stays.
+      T.ev.push({ type: "mini", cardId: card.id, kind: mini, savedStars: -e.stars! });
+      const { stars: _saved, ...rest } = e;
+      if (Object.keys(rest).length) schedule(s, ctx.level, rest, card.id, T);
+      continue;
+    }
+    schedule(s, ctx.level, e, card.id, T);
+  }
   if (opt.gamble) {
     const roll = s.rolls[T.t];
     if (roll === undefined) throw new Error(`No roll for turn ${T.t}`);
@@ -311,7 +321,18 @@ export function cloneState(s: GameState): GameState {
   };
 }
 
-export interface TurnMode { gambles: "roll" | "fail" }
+/**
+ * `miniDone`: the player did well in the card's mini-moment (Spec: dust on D2, the leak
+ * detector on N3), so that option's Star cost is dropped. The run checker never sets it,
+ * so it treats every mini-moment as failed: skill helps but is never needed to win.
+ */
+export interface TurnMode { gambles: "roll" | "fail"; miniDone?: boolean }
+
+/** The mini-moment this choice opens, if any: only the hands-on option 0 of a "mini" card, and only when it costs a Star. */
+export function miniFor(card: Card, choice: Choice): "dust" | "leak" | null {
+  if (!card.mini || choice !== 0) return null;
+  return card.options[0].effects.some(e => (e.stars ?? 0) < 0) ? card.mini : null;
+}
 
 /**
  * Play one turn. `plan` is the power split (locked before the card is shown) and

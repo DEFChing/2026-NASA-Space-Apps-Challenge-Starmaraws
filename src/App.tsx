@@ -13,13 +13,16 @@ import { IRefPhaserGame, PhaserGame } from "./PhaserGame";
 import { setEmitter, useGame } from "./store/game";
 import { AssetDebug } from "./ui/AssetDebug";
 import { GameScreen } from "./ui/GameScreen";
+import { applySettings, useSettings } from "./ui/settings";
+import { SettingsDialog } from "./ui/SettingsPanel";
 import "./ui/greybox.css";
 
 function App() {
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   useEffect(() => {
     setEmitter((name, payload) => EventBus.emit(name, payload));
-    const onReady = () => useGame.getState().setSceneReady(true);
+    applySettings(useSettings.getState().settings);
+    const onReady = () => { useGame.getState().setSceneReady(true); applySettings(useSettings.getState().settings); };
     const onDone = () => useGame.getState().animationsDone();
     EventBus.on("current-scene-ready", onReady);
     EventBus.on("animations-done", onDone);
@@ -48,6 +51,7 @@ function App() {
     <div id="app">
       <PhaserGame ref={phaserRef} />
       <GameScreen />
+      <SettingsDialog />
       {typeof location !== "undefined" && new URLSearchParams(location.search).has("debugAssets") && <AssetDebug />}
     </div>
   );

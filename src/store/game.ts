@@ -14,7 +14,7 @@ import { create } from "zustand";
 import { decode } from "../engine/codes";
 import { startRun } from "../engine/data";
 import type { Swap } from "../engine/draw";
-import { choicesFor, isDayTurn, planCost, planProblem, resolveTurn, type ChoiceInfo } from "../engine/rules";
+import { choicesFor, isDayTurn, miniFor, planCost, planProblem, resolveTurn, type ChoiceInfo } from "../engine/rules";
 import type { Analysis, Difficulty } from "../engine/solver";
 import type { Choice, Ctx, DailyPlan, GameEvent, GameState, Res, Specialist } from "../engine/types";
 import { markIntroSeen, readProgress, recordRun } from "../ui/progress";
@@ -22,7 +22,7 @@ import { endingFor, type Ending } from "../ui/story";
 import type { TurnRecord } from "../ui/text";
 import { createChecker, randomSeed } from "../workers/checkerClient";
 
-export type Phase = "title" | "intro" | "crewPick" | "checking" | "briefing" | "split" | "card" | "report" | "over";
+export type Phase = "title" | "intro" | "crewPick" | "checking" | "briefing" | "split" | "card" | "mini" | "report" | "over";
 export type Slot = "heater" | "greenhouse" | "experiments";
 
 /** What the store needs from the run checker (the worker in the game, the solver in tests). */
@@ -39,12 +39,16 @@ export function setChecker(c: Checker | null) { checker = c; }
 const getChecker = () => (checker ??= createChecker());
 
 /** Phaser listens here (App wires it to the EventBus). */
-export type EmitName = "turn-resolved" | "run-started" | "sfx" | "phase" | "skip-animations";
+export type EmitName = "turn-resolved" | "run-started" | "sfx" | "phase" | "skip-animations" | "settings";
 type Emit = (name: EmitName, payload?: unknown) => void;
 let emit: Emit = () => {};
 export function setEmitter(fn: Emit) { emit = fn; }
 /** Story screens play their sounds through the outpost scene too. */
 export const playSfx = (key: string) => emit("sfx", key);
+/** Volume, mute and reduce motion go to the scene the same way. */
+export const sendSettings = (settings: unknown) => emit("settings", settings);
+/** A sound effect from a React screen (the scene plays it with the effects volume). */
+export const sendSfx = (key: string) => emit("sfx", key);
 
 const TIP_KEY = "jamt.seenFirstTip";
 function readFirstRun(): boolean {
@@ -66,6 +70,7 @@ export interface GameStore {
   state: GameState | null;
   plan: DailyPlan;
   choices: ChoiceInfo[];            // the revealed card's options (card phase)
+  miniChoice: Choice | null;        // the option waiting for its mini-moment (mini phase)
   history: TurnRecord[];
   lastSwapTurn: number | null;      // smarter draw: turn of the last swap
   swaps: { turn: number; cardId: string; replaced: string }[];
@@ -92,7 +97,8 @@ export interface GameStore {
   toSplit(shelter?: boolean): void;                  // briefing → split, with the storm answer
   setSlot(slot: Slot, cells: number): void;
   lockSplit(): void;                                 // split → card: reveal the card
-  choose(choice: Choice): Promise<void>;             // card → report or over
+  choose(choice: Choice): Promise<void>;             // card → report or over (or mini first)
+  finishMini(done: boolean): Promise<void>;          // mini → report or over
   nextTurn(): void;                                  // report → briefing
   playAgain(sameSeed: boolean): void;
   dismissTip(): void;
@@ -105,7 +111,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   phase: "title",
   difficulty: "rookie",
   specialist: null, seed: null, ctx: null, state: null,
-  plan: emptyPlan(), choices: [], history: [],
+  plan: emptyPlan(), choices: [], miniChoice: null, history: [],
   lastSwapTurn: null, swaps: [], busy: false, error: null,
   animating: false, hudState: null, sceneReady: false,
   firstRun: readFirstRun(),
@@ -169,7 +175,7 @@ export const useGame = create<GameStore>()((set, get) => ({
     const { state, ctx } = startRun(seed, specialist);
     set({
       phase: "briefing", specialist, seed, state, ctx,
-      plan: emptyPlan(), choices: [], history: [], lastSwapTurn: null, swaps: [], busy: false, error: null,
+      plan: emptyPlan(), choices: [], miniChoice: null, history: [], lastSwapTurn: null, swaps: [], busy: false, error: null,
       animating: false, hudState: null, landing: false, ending: null, debriefOpen: false,
     });
     emit("run-started", { seed, specialist, state, isDay: isDayTurn(ctx.level, 0) });
@@ -201,37 +207,21 @@ export const useGame = create<GameStore>()((set, get) => ({
   },
 
   async choose(choice) {
-    const { phase, state, ctx, plan, choices, history } = get();
+    const { phase, state, ctx, choices } = get();
     if (phase !== "card" || !state || !ctx) return;
     const info = choices.find(c => c.choice === choice);
     if (!info?.affordable) { if (info) emit("sfx", "sfx_locked"); return; }
     emit("sfx", "sfx_option_select");
-    const { state: after, events } = resolveTurn(state, ctx, plan, choice);
-    const spare = state.res.power - planCost(state, ctx.level, plan);
-    const record: TurnRecord = {
-      turn: state.turn, cardId: state.deck[state.turn], plan, choice, events, after,
-      locked: choices.filter(c => !c.affordable).map(c => ({ choice: c.choice, label: c.option.label, cost: c.cost, spare })),
-    };
-    const animating = get().sceneReady;
-    const playing = after.status === "playing";
-    let ending: Ending | null = null;
-    if (!playing) {
-      // Pick Amara's line now, so the cutscene and the saved "recent lines" agree.
-      const progress = readProgress();
-      ending = endingFor([...history, record], ctx, progress.runs, progress.recentLines);
-      recordRun(ending.id);
-    }
-    set({ state: after, history: [...history, record], phase: playing ? "report" : "over", choices: [], animating, hudState: animating ? state : null, ending });
-    if (animating) {
-      clearTimeout(animationTimer);
-      animationTimer = setTimeout(() => get().animationsDone(), ANIMATION_TIMEOUT_MS);
-    }
-    const t = record.turn;
-    emit("turn-resolved", {
-      turn: t, events, state: after, cardId: record.cardId, cardTitle: ctx.cards[record.cardId].title, plan,
-      isDay: isDayTurn(ctx.level, t), nextIsDay: t + 1 < ctx.level.turns ? isDayTurn(ctx.level, t + 1) : null,
-    });
-    if (after.status === "playing") await tryHelp(after, events);
+    // The hands-on option of a mini card opens its mini-moment first (Spec: about 10 s, skippable).
+    if (miniFor(ctx.cards[state.deck[state.turn]], choice)) { set({ phase: "mini", miniChoice: choice }); return; }
+    await resolveChoice(choice, false);
+  },
+
+  async finishMini(done) {
+    const { phase, miniChoice } = get();
+    if (phase !== "mini" || miniChoice === null) return;
+    set({ miniChoice: null });
+    await resolveChoice(miniChoice, done);
   },
 
   nextTurn() {
@@ -271,6 +261,40 @@ export const useGame = create<GameStore>()((set, get) => ({
     if (get().animating) emit("skip-animations");
   },
 }));
+
+/** Play the picked option (after its mini-moment, if it had one): history, ending, animations, help. */
+async function resolveChoice(choice: Choice, miniDone: boolean) {
+  const get = useGame.getState, set = useGame.setState;
+  const { state, ctx, plan, choices, history } = get();
+  if (!state || !ctx) return;
+  const { state: after, events } = resolveTurn(state, ctx, plan, choice, { gambles: "roll", miniDone });
+    const spare = state.res.power - planCost(state, ctx.level, plan);
+    const record: TurnRecord = {
+      turn: state.turn, cardId: state.deck[state.turn], plan, choice, events, after,
+      locked: choices.filter(c => !c.affordable).map(c => ({ choice: c.choice, label: c.option.label, cost: c.cost, spare })),
+    };
+    const animating = get().sceneReady;
+    const playing = after.status === "playing";
+    let ending: Ending | null = null;
+    if (!playing) {
+      // Pick Amara's line now, so the cutscene and the saved "recent lines" agree.
+      const progress = readProgress();
+      ending = endingFor([...history, record], ctx, progress.runs, progress.recentLines);
+      recordRun(ending.id);
+    }
+    set({ state: after, history: [...history, record], phase: playing ? "report" : "over", choices: [], animating, hudState: animating ? state : null, ending });
+    if (animating) {
+      clearTimeout(animationTimer);
+      animationTimer = setTimeout(() => get().animationsDone(), ANIMATION_TIMEOUT_MS);
+    }
+    const t = record.turn;
+    emit("turn-resolved", {
+      turn: t, events, state: after, cardId: record.cardId, cardTitle: ctx.cards[record.cardId].title, plan,
+      isDay: isDayTurn(ctx.level, t), nextIsDay: t + 1 < ctx.level.turns ? isDayTurn(ctx.level, t + 1) : null,
+    });
+    if (after.status === "playing") await tryHelp(after, events);
+}
+
 
 /** Smarter draw: after a warning, ask the checker for a better next card. */
 async function tryHelp(after: GameState, events: GameEvent[]) {

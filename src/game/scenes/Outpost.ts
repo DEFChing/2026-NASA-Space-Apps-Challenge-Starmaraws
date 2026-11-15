@@ -15,6 +15,8 @@ import { EventBus } from "../EventBus";
 import { realImages } from "./Boot";
 
 const STAGE = { w: 960, h: 540 };
+/** Each kind of sound's own level; the player's volume settings multiply these. */
+const MUSIC_LEVEL = 0.5, EFFECT_LEVEL = 0.9, AMBIENCE_LEVEL = 0.3;
 const SHELL = { x: 130, y: 112, w: 700, h: 380 };
 type ModuleId = "power" | "heater" | "greenhouse" | "lab" | "stormroom";
 const MODULES: Record<ModuleId, { key: string; x: number; y: number; label: string }> = {
@@ -45,6 +47,9 @@ export interface RunPayload { state: GameState; specialist: Specialist; isDay: b
 type Visual = GameObjects.Image | GameObjects.Sprite;
 interface Module { id: ModuleId; img: Visual; dark: GameObjects.Rectangle; frost: Visual; pips: GameObjects.Container; x: number; y: number }
 
+/** Drop-in art is drawn at half size (it's made at 2x); placeholders at full size. */
+const baseScale = (key: string) => (realImages.has(key) ? 0.5 : 1);
+
 export class Outpost extends Scene {
   private back!: GameObjects.Container;     // backdrop, scaled to cover the window
   private stage!: GameObjects.Container;    // the outpost, scaled to fit the window
@@ -61,6 +66,8 @@ export class Outpost extends Scene {
   private banner!: GameObjects.Text;
   private night = false;
   private reduce = false;
+  private musicVol = 0.7;   // player settings (0–1), times each sound's own level
+  private sfxVol = 0.8;
   private music?: Phaser.Sound.BaseSound;
   private musicKey = "";
   private running = false;
@@ -86,6 +93,14 @@ export class Outpost extends Scene {
     const onSkip = () => this.setSpeed(6);
     const onSfx = (key: string) => this.sfx(key);
     const onPhase = (phase: string) => { if (phase === "crewPick" || phase === "title") this.playMusic("music_title"); };
+    const onSettings = (st: { music: number; effects: number; mute: boolean; reduceMotion: boolean }) => {
+      this.musicVol = st.music; this.sfxVol = st.effects; this.reduce = st.reduceMotion;
+      this.sound.mute = st.mute;
+      if (this.music) (this.music as unknown as { volume: number }).volume = MUSIC_LEVEL * this.musicVol;
+      const amb = this.sound.get("amb_hum") as unknown as { volume: number } | null;
+      if (amb) amb.volume = AMBIENCE_LEVEL * this.sfxVol;
+    };
+    EventBus.on("settings", onSettings);
     EventBus.on("run-started", onRun);
     EventBus.on("turn-resolved", onTurn);
     EventBus.on("skip-animations", onSkip);
@@ -97,7 +112,7 @@ export class Outpost extends Scene {
     EventBus.on("scene-ping", onPing);
     const off = () => {
       EventBus.off("run-started", onRun); EventBus.off("turn-resolved", onTurn);
-      EventBus.off("skip-animations", onSkip); EventBus.off("sfx", onSfx); EventBus.off("phase", onPhase); EventBus.off("scene-ping", onPing);
+      EventBus.off("skip-animations", onSkip); EventBus.off("sfx", onSfx); EventBus.off("phase", onPhase); EventBus.off("scene-ping", onPing); EventBus.off("settings", onSettings);
     };
     this.events.once(Scenes.Events.SHUTDOWN, off);
     this.events.once(Scenes.Events.DESTROY, off);
@@ -225,11 +240,12 @@ export class Outpost extends Scene {
     this.setFrame(this.modules.lab.img, 0); this.setFrame(this.modules.stormroom.img, 0);
     this.glow.setAlpha(0); this.growlights.setAlpha(0);
     Object.values(this.modules).forEach(m => m.pips.removeAll(true));
-    this.props.regolith.setAlpha(s.flags.includes("buried") ? 1 : 0);
+    this.props.regolith.setAlpha(s.flags.includes("buried") ? 1 : 0).setY(SHELL.y);
     this.props.sandbags.setAlpha(s.flags.includes("sandbagged") ? 1 : 0);
     this.props.cave.setAlpha(s.flags.includes("cave") ? 1 : 0);
     this.setFrame(this.props.solar, s.mods.some(m => m.delta < 0) ? 1 : 0);
     for (const k of ["pit", "lander", "telescope", "crack", "frostBattery", "mold"] as const) this.props[k].setAlpha(0);
+    this.props.mold.setScale(baseScale("fx_mold"));
     this.crewHome();
     this.crewMood(s);
   }
@@ -339,6 +355,7 @@ export class Outpost extends Scene {
       case "badge": return this.badgeTick(step.amount, step.cause);
       case "storm": return this.storm(step.sheltered, step.pips);
       case "delayed": return this.showBanner(`From Turn ${step.fromTurn + 1}`, 700);
+      case "mini": this.sfx("sfx_star_gain"); return this.floatAt("lab", "Star saved by hand!", "#9affb0", true);
       case "flag": return this.flag(step.flag);
       case "sunMod": this.setFrame(this.props.solar, 1); return this.floatAt("power", `Sunlight ${step.delta} every Day`, "#ffd27a");
       case "status": return this.status(step.status, step.res);
@@ -401,13 +418,13 @@ export class Outpost extends Scene {
       case "D4": await Promise.all([this.fadeIn(P.pit, 600), this.driveRover(700, 500)]); break;
       case "D6": await this.driveRover(820, 500); await this.driveRover(20, 500); break;
       case "D7": this.sfx("sfx_lander"); P.lander.setAlpha(1).setY(150); await this.tween({ targets: P.lander, y: 500, duration: 1100, ease: "Quad.easeOut" }); this.setFrame(P.lander, 1); await this.puffs(880, 495, 6); break;
-      case "D8": this.sfx("sfx_meteoroid"); await this.flash(0xffffff, 120); await this.puffs(P.solar.x + 80, P.solar.y - 40, 4); break;
+      case "D8": await this.meteoroid(P.solar.x + 80, P.solar.y - 40); break;
       case "N1": case "N2": this.sfx("sfx_frost"); await this.tween({ targets: Object.values(this.modules).map(m => m.frost), alpha: 0.9, duration: 500, yoyo: true }); break;
-      case "N3": this.sfx("sfx_quake"); if (!this.reduce) this.cameras.main.shake(900, 0.006); await this.puffs(SHELL.x + 350, SHELL.y + 40, 8); await this.fadeIn(P.crack, 300); break;
+      case "N3": await this.quake(); break;
       case "N4": await this.fadeIn(P.frostBattery, 500); break;
       case "N5": await this.radioWaves(); break;
       case "N6": this.setFrame(P.rover, 1); await this.wait(500); break;
-      case "N7": await this.fadeIn(P.mold, 600); break;
+      case "N7": await this.mold(); break;
       case "N8": await this.tint(0x8a6bff, 700); break;
       case "N9": await this.fadeIn(P.telescope, 600); break;
       default: break;
@@ -474,7 +491,7 @@ export class Outpost extends Scene {
 
   private async flag(flag: Flag) {
     const P = this.props;
-    if (flag === "buried") { this.sfx("sfx_regolith"); await Promise.all([this.puffs(SHELL.x + 350, SHELL.y, 10), this.fadeIn(P.regolith, 900)]); }
+    if (flag === "buried") await this.pileRegolith();
     if (flag === "sandbagged") await this.fadeIn(P.sandbags, 700);
     if (flag === "cave") { await this.fadeIn(P.cave, 700); await this.sparkle(P.cave.x, P.cave.y - 30); }
   }
@@ -589,6 +606,57 @@ export class Outpost extends Scene {
 
   private async fadeIn(v: Visual, duration: number) { await this.tween({ targets: v, alpha: 1, duration }); }
 
+  // --- Step 8 effects: regolith piling, quake shake, micrometeoroid flash, mold --------
+
+  /** Regolith is pushed up over the shell in three loads, with dust kicked up along it. */
+  private async pileRegolith() {
+    const P = this.props;
+    this.sfx("sfx_regolith");
+    if (this.reduce) { await this.fadeIn(P.regolith, 400); return; }
+    P.regolith.setY(SHELL.y + 60);
+    const loads = [0, 1, 2].map(i => this.wait(i * 300).then(() => this.puffs(SHELL.x + 120 + i * 230, SHELL.y + SHELL.h - 60, 6)));
+    await Promise.all([...loads, this.tween({ targets: P.regolith, alpha: 1, y: SHELL.y, duration: 1100, ease: "Quad.easeOut" })]);
+  }
+
+  /** The ground shakes, dust falls inside every module, then the seal crack shows. */
+  private async quake() {
+    this.sfx("sfx_quake");
+    if (!this.reduce) {
+      this.cameras.main.shake(1100, 0.007);
+      await Promise.all([
+        this.tween({ targets: this.stage, x: this.stage.x + 5, duration: 70, yoyo: true, repeat: 6 }),
+        ...Object.values(this.modules).map((m, i) => this.wait(i * 90).then(() => this.puffs(m.x + 100, m.y + 30, 3))),
+      ]);
+    } else await this.puffs(SHELL.x + 350, SHELL.y + 40, 2);
+    await this.fadeIn(this.props.crack, 300);
+  }
+
+  /** A tiny grain streaks in, flashes on the solar panel and leaves a pit. */
+  private async meteoroid(x: number, y: number) {
+    this.sfx("sfx_meteoroid");
+    if (!this.reduce) {
+      const grain = this.add.circle(x + 320, y - 260, 4, 0xffffff).setDepth(6);
+      const trail = this.add.line(0, 0, x + 320, y - 260, x + 320, y - 260, 0xfff3c4).setOrigin(0, 0).setLineWidth(2).setDepth(6);
+      this.stage.add([trail, grain]);
+      await this.tween({
+        targets: grain, x, y, duration: 240, ease: "Quad.easeIn",
+        onUpdate: () => trail.setTo(x + 320, y - 260, grain.x, grain.y),
+      });
+      grain.destroy();
+      this.tweens.add({ targets: trail, alpha: 0, duration: 300, onComplete: () => trail.destroy() });
+    }
+    await this.flash(0xffffff, 120);
+    await Promise.all([this.puffs(x, y, 4), this.sparkle(x, y)]);
+  }
+
+  /** Mold spreads across the greenhouse wall. */
+  private async mold() {
+    const m = this.props.mold, full = baseScale("fx_mold");
+    if (this.reduce) { await this.fadeIn(m, 400); return; }
+    m.setScale(full * 0.25);
+    await this.tween({ targets: m, alpha: 1, scale: full, duration: 1000, ease: "Sine.easeOut" });
+  }
+
   private async flash(color: number, ms: number) {
     const c = Display.Color.IntegerToRGB(color);
     this.cameras.main.flash(this.reduce ? 60 : ms, c.r, c.g, c.b);
@@ -647,7 +715,7 @@ export class Outpost extends Scene {
   }
 
   private sfx(key: string) {
-    if (this.cache.audio.exists(key)) this.sound.play(key, { volume: 0.8 });
+    if (this.cache.audio.exists(key)) this.sound.play(key, { volume: EFFECT_LEVEL * this.sfxVol });
   }
 
   private playMusic(key: string) {
@@ -659,11 +727,11 @@ export class Outpost extends Scene {
     if (!this.cache.audio.exists(key)) return;
     const m = this.sound.add(key, { loop: key !== "music_finale", volume: 0 });
     m.play();
-    this.tweens.add({ targets: m, volume: 0.35, duration: 800 });
+    this.tweens.add({ targets: m, volume: MUSIC_LEVEL * this.musicVol, duration: 800 });
     this.music = m;
   }
 
   private loopAmbience(key: string) {
-    if (this.cache.audio.exists(key) && !this.sound.get(key)?.isPlaying) this.sound.play(key, { loop: true, volume: 0.25 });
+    if (this.cache.audio.exists(key) && !this.sound.get(key)?.isPlaying) this.sound.play(key, { loop: true, volume: AMBIENCE_LEVEL * this.sfxVol });
   }
 }
