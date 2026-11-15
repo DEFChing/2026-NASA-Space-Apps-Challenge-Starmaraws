@@ -112,7 +112,7 @@ describe("seeds and difficulty", () => {
   test("difficulty bands", () => {
     expect(difficultyOf(0.3)).toBe("rookie");
     expect(difficultyOf(DIFFICULTY_BANDS.rookie)).toBe("rookie");
-    expect(difficultyOf(0.02)).toBe("pilot");
+    expect(difficultyOf(0.01)).toBe("pilot");
     expect(difficultyOf(0.001)).toBe("commander");
     expect(difficultyOf(0)).toBe("commander");
   });
@@ -124,10 +124,10 @@ describe("seeds and difficulty", () => {
 
   test("a seed can pass for one specialist and fail for another", () => {
     const result = (["engineer", "botanist", "doctor"] as const).map(sp => {
-      const { state, ctx } = startRun(1004, sp);
+      const { state, ctx } = startRun(1092, sp);
       return isWinnable(state, ctx).winnable;
     });
-    expect(result).toEqual([false, false, true]);   // only the Doctor can win seed 1004
+    expect(result).toEqual([false, false, true]);   // only the Doctor can win seed 1092
   }, SLOW);
 
   test("findSeed only hands out seeds that pass at the asked difficulty", () => {

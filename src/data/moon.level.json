@@ -3,7 +3,7 @@
     "si": {
       "generated": true,
       "tool": "Claude (Anthropic)",
-      "how": "First-pass numbers from the Game Design Spec v2 (Moon Outpost); to be tuned with the run checker",
+      "how": "First-pass numbers from the Game Design Spec v2 (Moon Outpost); warmth retuned with the run checker (Day +1, Night −4, −3 if buried or sandbagged)",
       "humanReviewed": true
     }
   },
@@ -13,8 +13,8 @@
     "starTarget": 7,
     "start": { "power": 8, "warmth": 8, "food": 6 },
     "max":   { "power": 10, "warmth": 10, "food": 10 },
-    "day":   { "sunlight": 6, "warmth": 2 },
-    "night": { "sunlight": 0, "warmth": -2, "warmthInsulated": -1 },
+    "day":   { "sunlight": 6, "warmth": 1 },
+    "night": { "sunlight": 0, "warmth": -4, "warmthInsulated": -3 },
     "upkeep": [{ "res": "food", "delta": -1 }],
     "slots": {
       "heater":      { "max": 2, "nightOnly": true },

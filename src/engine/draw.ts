@@ -8,7 +8,7 @@
 // that protects that bar. Swap it in only if the run checker says the run is at least
 // as winnable and as forgiving as before. At most one swap every 2 turns.
 
-import { analyse } from "./solver";
+import { analyse, QUICK_LIMIT } from "./solver";
 import type { Card, Ctx, GameState, Res } from "./types";
 
 export const SWAP_GAP = 2;   // turns between swaps
@@ -54,11 +54,11 @@ export function smarterDraw(
   if (lastSwapTurn !== null && s.turn - lastSwapTurn < SWAP_GAP) return null;
   const candidates = swapCandidates(s, ctx, res);
   if (!candidates.length) return null;
-  const now = analyse(s, ctx, players);
+  const now = analyse(s, ctx, players, QUICK_LIMIT);
   let best: Swap | null = null;
   for (const cardId of candidates) {
     const state = swapIn(s, ctx, cardId);
-    const a = analyse(state, ctx, players);
+    const a = analyse(state, ctx, players, QUICK_LIMIT);
     if (now.winnable && !a.winnable) continue;     // help never makes the run worse
     if (a.winShare < now.winShare) continue;
     if (!best || a.winShare > best.after) {

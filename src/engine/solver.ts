@@ -129,11 +129,19 @@ export function winShare(start: GameState, ctx: Ctx, players = 1000, seed = star
 export type Difficulty = "rookie" | "pilot" | "commander";
 
 /**
- * Difficulty bands by random-player win share, measured on 450 seeds (Step 3):
- * Rookie ≥ 5% (about 30% of winnable seeds), Pilot 0.5–5% (about 23%),
- * Commander under 0.5% but still winnable (about 47%). Retune when cards or numbers change.
+ * Difficulty bands by random-player win share, measured on 450 seeds with Day +1 /
+ * Night −4 (−3) warmth: Rookie ≥ 3% (about 32% of winnable seeds), Pilot 0.3–3%
+ * (about 22%), Commander under 0.3% but still winnable (about 47%); 94% of seeds were
+ * winnable. Retune when cards or level numbers change.
  */
-export const DIFFICULTY_BANDS = { rookie: 0.05, pilot: 0.005 } as const;
+export const DIFFICULTY_BANDS = { rookie: 0.03, pilot: 0.003 } as const;
+
+/**
+ * Search limit when choosing seeds or helping mid-run: about 2 seconds at most. A seed
+ * that needs more is skipped (it's "not checked", never handed out); on 450 seeds this
+ * skipped under 2% of winnable ones. isWinnable's own default stays higher for exact answers.
+ */
+export const QUICK_LIMIT = 400_000;
 
 export function difficultyOf(share: number): Difficulty {
   return share >= DIFFICULTY_BANDS.rookie ? "rookie" : share >= DIFFICULTY_BANDS.pilot ? "pilot" : "commander";
@@ -148,8 +156,8 @@ export interface Analysis {
 }
 
 /** Full check of a run from `start`: winnable, how forgiving, and which tier. */
-export function analyse(start: GameState, ctx: Ctx, players = 1000): Analysis {
-  const check = isWinnable(start, ctx);
+export function analyse(start: GameState, ctx: Ctx, players = 1000, limit?: number): Analysis {
+  const check = isWinnable(start, ctx, limit);
   if (!check.winnable) return { ...check, winShare: 0, difficulty: null };
   const share = winShare(start, ctx, players);
   return { ...check, winShare: share, difficulty: difficultyOf(share) };
@@ -167,7 +175,7 @@ export function findSeed(
   for (let i = 0; i < tries; i++) {
     const seed = startSeed + i;
     const { state, ctx } = makeRun(seed, specialist);
-    const analysis = analyse(state, ctx);
+    const analysis = analyse(state, ctx, 1000, QUICK_LIMIT);
     if (analysis.winnable && analysis.difficulty === difficulty) return { seed, analysis, tried: i + 1 };
   }
   return null;

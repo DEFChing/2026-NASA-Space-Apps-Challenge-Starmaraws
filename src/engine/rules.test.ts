@@ -91,12 +91,12 @@ describe("turn order", () => {
 });
 
 describe("Day and Night", () => {
-  test("Day: sunlight adds Power +6 and Warmth +2", () => {
+  test("Day: sunlight adds Power +6 and Warmth +1", () => {
     const { state, ctx } = setup();
     state.res = { power: 3, warmth: 5, food: 6 };
     const { state: s } = play(state, ctx, {}, 1);              // B0 sandbag: Power −1
     expect(s.res.power).toBe(3 - 1 + 6);
-    expect(s.res.warmth).toBe(5 + 2);
+    expect(s.res.warmth).toBe(5 + 1);
   });
 
   test("the Heater is Night only: Day splits can't put cells in it", () => {
@@ -105,24 +105,30 @@ describe("Day and Night", () => {
     expect(() => play(state, ctx, { heater: 1 }, 1)).toThrow(/Heater isn't needed by day/);
   });
 
-  test("Night: Warmth −2, each Heater cell cancels 1, never above where it started", () => {
+  test("Night: Warmth −4, each Heater cell cancels 1, so 2 cells can't hold an open habitat steady", () => {
     const fresh = setup();
     fresh.state.turn = 1; fresh.state.res.warmth = 6;          // Turn 2 (Night), no upgrades
     const warmthAfter = (heater: number) =>
       play(fresh.state, fresh.ctx, { heater }, 1).state.res.warmth; // N1 B: Warmth −1
-    expect(warmthAfter(0)).toBe(6 - 1 - 2);
-    expect(warmthAfter(1)).toBe(6 - 1 - 1);
-    expect(warmthAfter(2)).toBe(6 - 1);
+    expect(warmthAfter(0)).toBe(6 - 1 - 4);
+    expect(warmthAfter(1)).toBe(6 - 1 - 3);
+    expect(warmthAfter(2)).toBe(6 - 1 - 2);
   });
 
-  test("Night loses only 1 Warmth once buried or sandbagged", () => {
+  test("Night loses only 3 Warmth once buried or sandbagged", () => {
     for (const flag of ["buried", "sandbagged"] as const) {
       const { state, ctx } = setup();
       state.turn = 1; state.flags = [flag];
-      const s = play(state, ctx, {}, 0).state;                  // N1 A: Power −2
-      expect(s.res.warmth).toBe(8 - 1);
-      expect(play(state, ctx, { heater: 2 }, 0).state.res.warmth).toBe(8); // 2nd cell wasted
+      expect(play(state, ctx, {}, 0).state.res.warmth).toBe(8 - 3);          // N1 A: Power −2
+      expect(play(state, ctx, { heater: 2 }, 0).state.res.warmth).toBe(8 - 1);
     }
+  });
+
+  test("heaters only replace lost heat: they never push Warmth up", () => {
+    const { state, ctx } = setup();
+    const big = { ...ctx, level: { ...level, slots: { ...level.slots, heater: { max: 4, nightOnly: true } } } };
+    state.turn = 1; state.flags = ["buried"]; state.res.power = 10;
+    expect(play(state, big, { heater: 4 }, 0).state.res.warmth).toBe(8);     // loss 3, 4 cells: stays at 8
   });
 
   test("Food −1 every turn; each Greenhouse cell adds Food +1", () => {
@@ -388,23 +394,23 @@ describe("seeded runs", () => {
 
 describe("a scripted 8-turn run", () => {
   const script: [Partial<DailyPlan>, Choice][] = [
-    [{ greenhouse: 1, experiments: 4 }, 0],          // T1 Day   B0: bury
-    [{ heater: 1, greenhouse: 1, experiments: 2 }, 1], // T2 Night N1: bundle up
-    [{ greenhouse: 1 }, 1],                          // T3 Day   D3: keep the power
-    [{ heater: 1, greenhouse: 1, experiments: 2 }, 0], // T4 Night N5: live call
-    [{ greenhouse: 1 }, 0],                          // T5 Day   D4: rappel, unlock cave
-    [{ heater: 1, greenhouse: 2, experiments: 2 }, 1], // T6 Night N3: keep working (crack)
-    [{ greenhouse: 1 }, 1],                          // T7 Day   D8: live with it
-    [{ heater: 1, greenhouse: 1, experiments: 2 }, 0], // T8 Night N7: pull the plants
+    [{ greenhouse: 1, experiments: 4 }, 0],            // T1 Day   B0: bury
+    [{ heater: 2, greenhouse: 1, experiments: 2 }, 1], // T2 Night N1: bundle up
+    [{ greenhouse: 1 }, 1],                            // T3 Day   D3: keep the power
+    [{ heater: 2, greenhouse: 1 }, 0],                 // T4 Night N5: live call
+    [{ greenhouse: 1 }, 0],                            // T5 Day   D4: rappel, unlock cave
+    [{ heater: 2, greenhouse: 2 }, 1],                 // T6 Night N3: keep working (crack)
+    [{ greenhouse: 1 }, 1],                            // T7 Day   D8: live with it
+    [{ heater: 2, greenhouse: 1, experiments: 2 }, 0], // T8 Night N7: pull the plants
   ];
 
   test("good planning wins", () => {
     const { state, ctx } = setup();
     const end = playAll(state, ctx, script);
     expect(end.status).toBe("won");
-    expect(end.stars).toBe(10);
+    expect(end.stars).toBe(8);
     expect(end.badge).toBe(6);
-    expect(end.res).toEqual({ power: 1, warmth: 9, food: 4 });
+    expect(end.res).toEqual({ power: 1, warmth: 5, food: 4 });
   });
 
   test("skipping the greenhouse runs out of food", () => {
