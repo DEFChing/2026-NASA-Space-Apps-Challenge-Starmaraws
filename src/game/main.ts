@@ -1,31 +1,22 @@
-import { Boot } from './scenes/Boot';
-import { GameOver } from './scenes/GameOver';
-import { Game as MainGame } from './scenes/Game';
-import { MainMenu } from './scenes/MainMenu';
-import { AUTO, Game } from 'phaser';
-import { Preloader } from './scenes/Preloader';
+/**
+ * SI disclosure: written with assistance from Claude (Anthropic), a large language
+ * model, then reviewed, edited and tested by the Junior Astronaut team. See AI_USAGE.md.
+ */
 
-//  Find out more information about the Game Config at:
-//  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
+// Phaser setup: a full-window canvas behind the React overlay. One scene for now;
+// Step 5 adds the Preloader and the real outpost.
+
+import { AUTO, Game, Scale } from "phaser";
+import { Outpost } from "./scenes/Outpost";
+
 const config: Phaser.Types.Core.GameConfig = {
-    type: AUTO,
-    width: 1024,
-    height: 768,
-    parent: 'game-container',
-    backgroundColor: '#028af8',
-    scene: [
-        Boot,
-        Preloader,
-        MainMenu,
-        MainGame,
-        GameOver
-    ]
+  type: AUTO,
+  parent: "game-container",
+  backgroundColor: "#0b0f1a",
+  scale: { mode: Scale.RESIZE, width: "100%", height: "100%" },
+  scene: [Outpost],
 };
 
-const StartGame = (parent: string) => {
-
-    return new Game({ ...config, parent });
-
-}
+const StartGame = (parent: string) => new Game({ ...config, parent });
 
 export default StartGame;
