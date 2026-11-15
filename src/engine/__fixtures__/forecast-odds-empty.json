@@ -8,6 +8,6 @@
     }
   },
   "archive": null,
-  "rule": { "signDays": 7, "turnDays": 14, "high": { "flare": "X", "cmeSpeed": 1000 }, "medium": { "flare": "M", "cmeSpeed": 500 } },
+  "rule": { "signDays": 7, "turnDays": 14, "flares": true, "high": { "flare": "X", "cmeSpeed": 1000 }, "medium": { "flare": "M", "cmeSpeed": 500 } },
   "tiers": null
 }

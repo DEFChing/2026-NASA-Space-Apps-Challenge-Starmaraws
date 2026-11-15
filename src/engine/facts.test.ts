@@ -98,9 +98,10 @@ describe("real-data text", () => {
     expect(realStormLine("2024-05-10")).toBe("This storm really happened on 10 May 2024.");
   });
 
-  test("the storm nudge follows the Spec: 1 in 3 or higher", () => {
-    expect(worthSheltering("low")).toBe(false);      // placeholder 1 in 10
-    expect(worthSheltering("medium")).toBe(true);    // placeholder 1 in 3
+  test("the storm nudge shows on a high forecast only (real odds top out at 1 in 4)", () => {
+    expect(worthSheltering("low")).toBe(false);
+    expect(worthSheltering("medium")).toBe(false);
+    expect(worthSheltering("high")).toBe(true);
     expect(worthSheltering(null)).toBe(false);
   });
 
@@ -132,6 +133,15 @@ describe("the Datasets page", () => {
     expect(html).toMatch(/2 solar particle storms measured near Earth/);
     expect(html).toMatch(/An X-class flare or a CME of 1,000 km\/s or more/);
     expect(html).toMatch(/A storm followed in [\d,]+ of [\d,]+ two-week stretches/);
+  });
+
+  test("without flares it says the warning signs are CMEs only", () => {
+    const noFlares = { ...buildArchive({ sep: RAW_SEP, flr: [], cme: RAW_CME }, { start: "2024-01-01", end: "2026-10-31" }, "x", { flaresAvailable: false }) };
+    const html = render({ archive: noFlares, odds: buildForecastOdds(noFlares) });
+    expect(html).toMatch(/couldn&#x27;t download DONKI&#x27;s flare records, so the warning signs use CMEs only/);
+    expect(html).toMatch(/<td>A CME of 1,000 km\/s or more<\/td>/);
+    expect(html).toMatch(/<td>No fast CME in the week before<\/td>/);
+    expect(html).not.toMatch(/big flares/);
   });
 
   test("every card source, fact and credit is listed", () => {

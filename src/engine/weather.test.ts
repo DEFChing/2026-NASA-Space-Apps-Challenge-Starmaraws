@@ -147,6 +147,26 @@ describe("real weather for a run", () => {
     expect(oddsWarnings(odds).some(w => /only \d+ windows/.test(w))).toBe(true);   // high has few windows in one year
     expect(oddsWarnings({ ...odds, tiers: { ...odds.tiers!, high: { ...odds.tiers!.high, chance: 0, windows: 999 } } }).join())
       .toMatch(/high .* less likely than medium/);
+    const same = { ...odds, tiers: { ...odds.tiers!, medium: { ...odds.tiers!.medium, label: "2 in 3", chance: 0.62, windows: 999 }, high: { ...odds.tiers!.high, label: "2 in 3", chance: 0.66, windows: 999 } } };
+    expect(oddsWarnings(same).join()).toMatch(/medium and high both say 2 in 3/);
+  });
+});
+
+describe("an archive without flares (warning signs: CMEs only)", () => {
+  const a = { ...archive({ storms: [60, 130], cme: [[55, 700], [125, 1300]] }), flaresAvailable: false };
+
+  test("it loads, measures odds and says the signs were CMEs only", () => {
+    expect(loadArchive(a)).toBe(a);
+    expect(buildForecastOdds(a).rule.flares).toBe(false);
+    expect(buildForecastOdds(archive()).rule.flares).toBe(true);
+    expect(() => loadArchive({ ...a, flares: [{ date: "2024-01-05", cls: "M1.0" }] })).toThrow(/flaresAvailable is false/);
+  });
+
+  test("CMEs alone still give medium and high forecasts", () => {
+    const ix = indexArchive(a), d0 = dayNum("2024-01-01");
+    expect(signTier(ix, d0 + 50, d0 + 57)).toBe("medium");
+    expect(signTier(ix, d0 + 120, d0 + 127)).toBe("high");
+    expect(signTier(ix, d0 + 10, d0 + 17)).toBe("low");
   });
 });
 

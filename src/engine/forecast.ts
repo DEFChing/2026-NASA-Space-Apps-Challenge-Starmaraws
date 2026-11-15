@@ -7,7 +7,7 @@
 // scripts/build-forecast.ts writes the file; the game reads it. Until the archive has
 // been downloaded, the file has no tiers and the game shows the placeholder odds.
 
-import type { DonkiArchive } from "./donki";
+import { hasFlares, type DonkiArchive } from "./donki";
 import type { Odds } from "./types";
 import { kidFraction, measureOdds, SIGN_DAYS, SIGN_RULE, TURN_DAYS } from "./weather";
 
@@ -16,7 +16,11 @@ export interface TierOdds { chance: number; label: string; windows: number; with
 export interface ForecastOdds {
   _meta: { si: Record<string, unknown> };
   archive: { start: string; end: string } | null;
-  rule: { signDays: number; turnDays: number; high: { flare: string; cmeSpeed: number }; medium: { flare: string; cmeSpeed: number } };
+  rule: {
+    signDays: number; turnDays: number;
+    flares?: boolean;   // false: flare records weren't available, so the signs were CMEs only
+    high: { flare: string; cmeSpeed: number }; medium: { flare: string; cmeSpeed: number };
+  };
   tiers: Record<Odds, TierOdds> | null;
 }
 
@@ -42,7 +46,7 @@ export function buildForecastOdds(a: DonkiArchive): ForecastOdds {
   return {
     _meta: ODDS_META,
     archive: a.range,
-    rule: { signDays: SIGN_DAYS, turnDays: TURN_DAYS, high: { ...SIGN_RULE.high }, medium: { ...SIGN_RULE.medium } },
+    rule: { signDays: SIGN_DAYS, turnDays: TURN_DAYS, flares: hasFlares(a), high: { ...SIGN_RULE.high }, medium: { ...SIGN_RULE.medium } },
     tiers,
   };
 }
@@ -54,6 +58,9 @@ export function oddsWarnings(o: ForecastOdds): string[] {
   const order: Odds[] = ["low", "medium", "high"];
   for (const k of order) if (o.tiers[k].windows < MIN_WINDOWS) w.push(`${k}: only ${o.tiers[k].windows} windows; the rate is shaky`);
   for (let i = 1; i < order.length; i++) {
+    if (o.tiers[order[i]].label === o.tiers[order[i - 1]].label) {
+      w.push(`${order[i - 1]} and ${order[i]} both say ${o.tiers[order[i]].label}, so the forecast can't tell them apart; consider changing the warning-sign rule`);
+    }
     if (o.tiers[order[i]].chance < o.tiers[order[i - 1]].chance) {
       w.push(`${order[i]} (${o.tiers[order[i]].label}) is less likely than ${order[i - 1]} (${o.tiers[order[i - 1]].label}); stronger signs should mean higher odds`);
     }

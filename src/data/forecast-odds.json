@@ -4,10 +4,44 @@
       "generated": true,
       "tool": "Claude (Anthropic)",
       "how": "Numbers computed from the NASA DONKI archive by scripts/build-forecast.ts (an SI-assisted script); no number is written by hand",
-      "humanReviewed": false
+      "humanReviewed": true
     }
   },
-  "archive": null,
-  "rule": { "signDays": 7, "turnDays": 14, "high": { "flare": "X", "cmeSpeed": 1000 }, "medium": { "flare": "M", "cmeSpeed": 500 } },
-  "tiers": null
+  "archive": {
+    "start": "2010-01-01",
+    "end": "2026-10-31"
+  },
+  "rule": {
+    "signDays": 7,
+    "turnDays": 14,
+    "flares": true,
+    "high": {
+      "flare": "X",
+      "cmeSpeed": 1000
+    },
+    "medium": {
+      "flare": "M",
+      "cmeSpeed": 500
+    }
+  },
+  "tiers": {
+    "low": {
+      "chance": 0.017,
+      "label": "less than 1 in 20",
+      "windows": 1604,
+      "withStorm": 27
+    },
+    "medium": {
+      "chance": 0.126,
+      "label": "1 in 10",
+      "windows": 2331,
+      "withStorm": 294
+    },
+    "high": {
+      "chance": 0.254,
+      "label": "1 in 4",
+      "windows": 2193,
+      "withStorm": 557
+    }
+  }
 }

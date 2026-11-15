@@ -7,7 +7,7 @@
 // card source, fact or credit shows up here without anyone editing this page.
 
 import { donkiArchive, forecastOdds, moonCards, moonCredits, moonFacts } from "../engine/data";
-import type { DonkiArchive } from "../engine/donki";
+import { hasFlares, type DonkiArchive } from "../engine/donki";
 import type { Credit, Fact } from "../engine/facts";
 import type { ForecastOdds } from "../engine/forecast";
 import type { Card, Odds } from "../engine/types";
@@ -27,9 +27,15 @@ const n = (x: number) => x.toLocaleString("en-US");
 export const DONKI_URL = "https://ccmc.gsfc.nasa.gov/tools/DONKI/";
 
 const SIGNS: Record<Odds, (o: ForecastOdds) => string> = {
-  low: () => "No big flare or fast CME in the week before",
-  medium: o => `An ${o.rule.medium.flare}-class flare or a CME of ${o.rule.medium.cmeSpeed} km/s or more`,
-  high: o => `An ${o.rule.high.flare}-class flare or a CME of ${o.rule.high.cmeSpeed.toLocaleString("en-US")} km/s or more`,
+  low: o => (o.rule.flares === false ? "No fast CME in the week before" : "No big flare or fast CME in the week before"),
+  medium: o => {
+    const cme = `a CME of ${n(o.rule.medium.cmeSpeed)} km/s or more`;
+    return o.rule.flares === false ? `A${cme.slice(1)}` : `An ${o.rule.medium.flare}-class flare or ${cme}`;
+  },
+  high: o => {
+    const cme = `a CME of ${n(o.rule.high.cmeSpeed)} km/s or more`;
+    return o.rule.flares === false ? `A${cme.slice(1)}` : `An ${o.rule.high.flare}-class flare or ${cme}`;
+  },
 };
 
 export function Datasets({ onClose, archive = donkiArchive, odds = forecastOdds, cards = moonCards, facts = moonFacts, credits = moonCredits }: Props) {
@@ -50,9 +56,10 @@ export function Datasets({ onClose, archive = donkiArchive, odds = forecastOdds,
           <p data-testid="datasets-archive">
             We downloaded its records from {formatDate(archive.range!.start)} to {formatDate(archive.range!.end)}:{" "}
             {n(archive.storms.length)} solar particle storms measured near Earth (by GOES, SOHO or ACE), plus{" "}
-            {n(archive.flares.length)} big flares (M and X class) and {n(archive.cmes.length)} fast coronal mass ejections
-            (500 km/s or more), which we use as warning signs. Each mission uses a real 16-week stretch, and a turn has
-            a storm only if one really happened in its 14 days.
+            {hasFlares(archive)
+              ? <>{n(archive.flares.length)} big flares (M and X class) and {n(archive.cmes.length)} fast coronal mass ejections (500 km/s or more), which we use as warning signs.</>
+              : <>{n(archive.cmes.length)} fast coronal mass ejections (500 km/s or more), which we use as warning signs. (We couldn't download DONKI's flare records, so the warning signs use CMEs only.)</>}
+            {" "}Each mission uses a real 16-week stretch, and a turn has a storm only if one really happened in its 14 days.
           </p>
           {odds.tiers && (
             <table className="odds" data-testid="datasets-odds">

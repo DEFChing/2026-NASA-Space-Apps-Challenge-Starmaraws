@@ -466,6 +466,6 @@
     "type": "data",
     "tool": "Claude (Anthropic)",
     "how": "Computed from the NASA DONKI archive by scripts/build-forecast.ts; no number written by hand",
-    "humanReviewed": false
+    "humanReviewed": true
   }
 ]

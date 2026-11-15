@@ -69,8 +69,12 @@ export function forecastText(odds: Odds): string {
   return `${oddsInfo(odds).label} chance of a radiation storm next turn`;
 }
 
-/** The Spec's storm nudge shows when the forecast says 1 in 3 or higher. */
-export const worthSheltering = (odds: Odds | null) => odds !== null && oddsInfo(odds).chance >= 1 / 3 - 1e-9;
+/**
+ * The storm nudge ("keep 2 for the shelter?") shows when the forecast is at its highest
+ * tier. The Spec first said "1 in 3 or higher", but the odds measured from DONKI top out
+ * at 1 in 4, so the nudge follows the tier, not a fixed number (Ching, Nov 2026).
+ */
+export const worthSheltering = (odds: Odds | null) => odds === "high";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 

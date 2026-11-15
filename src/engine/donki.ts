@@ -34,7 +34,15 @@ export interface DonkiArchive {
   flares: DonkiFlare[];
   cmes: DonkiCme[];
   skipped?: { sepFarFromEarth: number; sepModel: number; sepNoInstrument: number };
+  /**
+   * False if flare records couldn't be downloaded (Nov 2026: api.nasa.gov's flare route
+   * answered 404 and CCMC's DONKI site timed out from the Philippines). The warning signs
+   * then use CMEs only. Missing means true (older files).
+   */
+  flaresAvailable?: boolean;
 }
+
+export const hasFlares = (a: Pick<DonkiArchive, "flaresAvailable">) => a.flaresAvailable !== false;
 
 export const DONKI_SOURCE = "NASA CCMC Space Weather Database Of Notifications, Knowledge, Information (DONKI)";
 export const MIN_FLARE = /^[MX]/;    // flare classes kept
@@ -96,6 +104,7 @@ export function buildArchive(
   raw: { sep: Raw[]; flr: Raw[]; cme: Raw[] },
   range: { start: string; end: string },
   fetched: string,
+  opts: { flaresAvailable?: boolean } = {},
 ): DonkiArchive {
   const skipped = { sepFarFromEarth: 0, sepModel: 0, sepNoInstrument: 0 };
   const storms = new Map<string, DonkiStorm>();
@@ -123,6 +132,7 @@ export function buildArchive(
   }
   return {
     source: DONKI_SOURCE, fetched, range,
+    ...(opts.flaresAvailable === false ? { flaresAvailable: false } : {}),
     storms: [...storms.values()].sort(byDate),
     flares: [...flares.values()].sort(byDate),
     cmes: [...cmes.values()].sort(byDate),
@@ -142,6 +152,7 @@ export function loadArchive(json: unknown, file = "src/data/donki.json"): DonkiA
   const day = /^\d{4}-\d{2}-\d{2}$/;
   if (!day.test(a.range.start) || !day.test(a.range.end) || a.range.start > a.range.end) fail("bad range");
   for (const k of ["storms", "flares", "cmes"] as const) if (!Array.isArray(a[k])) fail(`${k} must be a list`);
+  if (a.flaresAvailable === false && a.flares!.length) fail("flaresAvailable is false but flares are listed");
   for (const s of a.storms!) if (!day.test(s.date) || !s.id || !/^https:\/\//.test(s.link)) fail(`bad storm ${JSON.stringify(s)}`);
   for (const f of a.flares!) if (!day.test(f.date) || !MIN_FLARE.test(f.cls)) fail(`bad flare ${JSON.stringify(f)}`);
   for (const c of a.cmes!) if (!day.test(c.date) || !(c.speed >= MIN_CME_SPEED)) fail(`bad CME ${JSON.stringify(c)}`);
