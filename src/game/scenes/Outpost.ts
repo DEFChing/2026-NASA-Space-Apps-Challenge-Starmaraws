@@ -6,7 +6,9 @@
 // The living outpost. It only shows what the engine decided: after each turn it plays
 // the planned animation steps (animations/plan.ts), snaps to the new state, and tells
 // React "animations-done" so the next panel appears only after the kid has seen what
-// happened. Everything works on placeholders; delivered art swaps in by key.
+// happened. Everything works on placeholders; delivered art swaps in by key. With the
+// delivered outpost picture (Step 8), the scene draws it instead of the shell and modules,
+// and lays the module warning / emergency looks over it.
 
 import { Display, GameObjects, Scene, Scenes } from "phaser";
 import type { DailyPlan, Flag, GameEvent, GameState, Res, Specialist } from "../../engine/types";
@@ -17,16 +19,28 @@ import { realImages } from "./Boot";
 const STAGE = { w: 960, h: 540 };
 /** Each kind of sound's own level; the player's volume settings multiply these. */
 const MUSIC_LEVEL = 0.5, EFFECT_LEVEL = 0.9, AMBIENCE_LEVEL = 0.3;
-const SHELL = { x: 130, y: 112, w: 700, h: 380 };
+const SHELL = { x: 130, y: 105, w: 828, h: 420 };   // placeholder habitat behind the modules
 type ModuleId = "power" | "heater" | "greenhouse" | "lab" | "stormroom";
-const MODULES: Record<ModuleId, { key: string; x: number; y: number; label: string }> = {
-  power:      { key: "module_power", x: 130, y: 30, label: "Power" },
-  heater:     { key: "module_heater", x: 350, y: 30, label: "Heater" },
-  greenhouse: { key: "module_greenhouse", x: 20, y: 200, label: "Greenhouse" },
-  lab:        { key: "module_lab", x: 240, y: 200, label: "Science lab" },
-  stormroom:  { key: "module_stormroom", x: 460, y: 200, label: "Storm room" },
+/** Module rectangles on the stage, measured on the delivered outpost picture; placeholders use the same places. */
+const MODULES: Record<ModuleId, { key: string; x: number; y: number; w: number; h: number; label: string }> = {
+  power:      { key: "module_power", x: 141, y: 115, w: 213, h: 129, label: "Power" },
+  heater:     { key: "module_heater", x: 144, y: 259, w: 259, h: 121, label: "Heater" },
+  greenhouse: { key: "module_greenhouse", x: 491, y: 172, w: 227, h: 126, label: "Greenhouse" },
+  lab:        { key: "module_lab", x: 514, y: 391, w: 290, h: 126, label: "Science lab" },
+  stormroom:  { key: "module_stormroom", x: 735, y: 141, w: 213, h: 210, label: "Storm room" },
 };
-const MOD_W = 220, MOD_H = 140;
+/** Module overlays (outpost_<res>_<state>[_night]) by module. */
+const OVERLAY: Partial<Record<ModuleId, string>> = { power: "power", heater: "warmth", greenhouse: "food" };
+/** Places on the stage, from the outpost picture: things drawn in it, and open ground for props. */
+const SPOT = {
+  rover: { x: 430, y: 467 },               // parked in the garage (bottom centre of the sprite)
+  garageDoor: { x: 430, y: 530 },          // just outside the garage, below the lab's row
+  radiator: { x: 546, y: 322 }, solar: { x: 534, y: 60 },
+  antenna: { x: 276, y: 63 },
+  hub: { x: 428, y: 244 },                 // the corridor crossing
+  pit: { x: 882, y: 505 }, cave: { x: 48, y: 345 }, lander: { x: 95, y: 532 }, telescope: { x: 862, y: 134 },
+};
+const MUSIC_FALLBACK: Record<string, string> = { music_night: "music_day", music_finale: "music_title" };
 const RES_MODULE: Record<Res, ModuleId> = { power: "power", warmth: "heater", food: "greenhouse" };
 const HOME: Record<Specialist | "ana", ModuleId> = { ana: "lab", engineer: "power", botanist: "greenhouse", doctor: "heater" };
 const CREW_KEY: Record<Specialist, string> = { engineer: "crew_kai", botanist: "crew_mei", doctor: "crew_sol" };
@@ -45,7 +59,8 @@ export interface TurnPayload {
 export interface RunPayload { state: GameState; specialist: Specialist; isDay: boolean }
 
 type Visual = GameObjects.Image | GameObjects.Sprite;
-interface Module { id: ModuleId; img: Visual; dark: GameObjects.Rectangle; frost: Visual; pips: GameObjects.Container; x: number; y: number }
+interface Module { id: ModuleId; img: Visual; dark: GameObjects.Rectangle; frost: Visual; pips: GameObjects.Container; x: number; y: number; w: number; h: number }
+type Status = "normal" | "warning" | "emergency";
 
 /** Drop-in art is drawn at half size (it's made at 2x); placeholders at full size. */
 const baseScale = (key: string) => (realImages.has(key) ? 0.5 : 1);
@@ -71,6 +86,14 @@ export class Outpost extends Scene {
   private music?: Phaser.Sound.BaseSound;
   private musicKey = "";
   private running = false;
+  /** The delivered outpost picture is in: draw it instead of the placeholder habitat. */
+  private art = false;
+  private bases = {} as Record<"day" | "night" | "dayBuried" | "nightBuried", Visual>;
+  private buried = false;
+  private overlays: Partial<Record<ModuleId, Record<"warning" | "emergency", { day: Visual; night: Visual }>>> = {};
+  private moduleStatus: Partial<Record<ModuleId, Status>> = {};
+  private stormDoor?: Visual;
+  private siLabel?: GameObjects.Text;
 
   constructor() { super("Outpost"); }
 
@@ -79,12 +102,18 @@ export class Outpost extends Scene {
     this.back = this.add.container(0, 0);
     this.stage = this.add.container(0, 0);
     this.fxLayer = this.add.container(0, 0).setDepth(10);
+    this.art = realImages.has("outpost_day");
     this.buildBackdrop();
     this.buildHabitat();
     this.buildProps();
     this.banner = this.add.text(STAGE.w / 2, 24, "", { fontFamily: "Arial", fontSize: "18px", color: "#ffffff", stroke: "#000000", strokeThickness: 4 })
       .setOrigin(0.5, 0).setAlpha(0);
     this.stage.add(this.banner);
+    if (this.art) {
+      // The outpost picture was made with SI, so it carries a visible label (AI_USAGE.md).
+      this.siLabel = this.add.text(0, 0, "SI-generated art", { fontFamily: "Arial", fontSize: "13px", color: "#ffffff", backgroundColor: "#000000aa", padding: { x: 6, y: 3 } })
+        .setOrigin(0, 1).setDepth(12).setAlpha(0.85);
+    }
     this.layout();
     this.scale.on("resize", () => this.layout());
 
@@ -136,6 +165,18 @@ export class Outpost extends Scene {
   }
 
   private buildBackdrop() {
+    if (this.art) {
+      // Letterbox colour behind the picture; the picture itself lives on the stage, so the
+      // modules, crew and props always line up with it.
+      this.back.add(this.add.rectangle(0, 0, STAGE.w, STAGE.h, 0x0b0f1a).setOrigin(0));
+      this.bases = {
+        day: this.put("outpost_day", 0, 0), night: this.put("outpost_night", 0, 0).setAlpha(0),
+        dayBuried: this.put("outpost_day_buried", 0, 0).setAlpha(0), nightBuried: this.put("outpost_night_buried", 0, 0).setAlpha(0),
+      };
+      this.stage.add(Object.values(this.bases));
+      this.earth = this.put("prop_earth", 860, 70, 0.5, 0.5).setAlpha(0).setVisible(false);   // already in the picture
+      return;
+    }
     for (const [list, prefix] of [[this.bgDay, "bg_day"], [this.bgNight, "bg_night"]] as const) {
       for (const layer of ["far", "mid", "near"]) list.push(this.put(`${prefix}_${layer}`, 0, 0));
     }
@@ -149,27 +190,43 @@ export class Outpost extends Scene {
   }
 
   private buildHabitat() {
-    const shell = this.put("habitat_shell", SHELL.x, SHELL.y);
-    this.stage.add(shell);
+    if (!this.art) this.stage.add(this.put("habitat_shell", SHELL.x, SHELL.y).setDisplaySize(SHELL.w, SHELL.h));
     for (const id of Object.keys(MODULES) as ModuleId[]) {
-      const m = MODULES[id];
-      const x = SHELL.x + m.x, y = SHELL.y + m.y;
-      const img = this.put(m.key, x, y, 0, 0, true);
-      const dark = this.add.rectangle(x, y, MOD_W, MOD_H, 0x000000, 0).setOrigin(0, 0);
-      const frost = this.put("fx_frost_window", x, y).setAlpha(0);
-      if (!realImages.has("fx_frost_window")) frost.setDisplaySize(70, 70);
-      const label = this.add.text(x + 8, y + 6, m.label, { fontFamily: "Arial", fontSize: "12px", color: "#ffffff", stroke: "#000000", strokeThickness: 3 });
-      const pips = this.add.container(x + MOD_W - 10, y + 10);
-      this.stage.add([img, dark, frost, label, pips]);
-      this.modules[id] = { id, img, dark, frost, pips, x, y };
+      const { x, y, w, h, key, label: name } = MODULES[id];
+      const img = this.put(key, x, y, 0, 0, true);
+      if (this.art) img.setVisible(false);                       // the picture shows the module
+      else if (!realImages.has(key)) img.setDisplaySize(w, h);
+      const parts: GameObjects.GameObject[] = [img];
+      const ov = OVERLAY[id];
+      if (this.art && ov) {
+        const look = (state: string, night: boolean) => {
+          const v = this.put(`outpost_${ov}_${state}${night ? "_night" : ""}`, x, y).setAlpha(0);
+          parts.push(v);
+          return v;
+        };
+        this.overlays[id] = {
+          warning: { day: look("warning", false), night: look("warning", true) },
+          emergency: { day: look("emergency", false), night: look("emergency", true) },
+        };
+      }
+      const dark = this.add.rectangle(x, y, w, h, 0x000000, 0).setOrigin(0, 0);
+      const frost = this.put("fx_frost_window", x, y).setAlpha(0).setDisplaySize(this.art ? w : 70, this.art ? h : 70);
+      parts.push(dark, frost);
+      if (!this.art) parts.push(this.add.text(x + 8, y + 6, name, { fontFamily: "Arial", fontSize: "12px", color: "#ffffff", stroke: "#000000", strokeThickness: 3 }));
+      const pips = this.add.container(x + w - 10, y + 10);
+      parts.push(pips);
+      this.stage.add(parts);
+      this.modules[id] = { id, img, dark, frost, pips, x, y, w, h };
     }
+    const sr = this.modules.stormroom;
+    if (this.art) { this.stormDoor = this.put("outpost_storm_closed", sr.x, sr.y).setAlpha(0); this.stage.add(this.stormDoor); }
     const h = this.modules.heater, gh = this.modules.greenhouse;
-    this.glow = this.put("fx_heater_glow", h.x, h.y).setAlpha(0);
-    this.growlights = this.put("fx_growlights", gh.x, gh.y).setAlpha(0);
+    this.glow = this.put("fx_heater_glow", h.x, h.y).setAlpha(0).setDisplaySize(h.w, h.h);
+    this.growlights = this.put("fx_growlights", gh.x, gh.y).setAlpha(0).setDisplaySize(gh.w, gh.h);
     this.stage.add([this.glow, this.growlights]);
-    if (!realImages.has("module_greenhouse")) {
+    if (!this.art && !realImages.has("module_greenhouse")) {
       for (let i = 0; i < 5; i++) {
-        const p = this.add.circle(gh.x + 30 + i * 40, gh.y + MOD_H - 26, 14, 0x5fd27a);
+        const p = this.add.circle(gh.x + 30 + i * 40, gh.y + gh.h - 26, 14, 0x5fd27a);
         this.plants.push(p);
         this.stage.add(p);
       }
@@ -178,19 +235,26 @@ export class Outpost extends Scene {
 
   private buildProps() {
     const P = this.props;
+    const pw = this.modules.power, gh = this.modules.greenhouse, sr = this.modules.stormroom;
     P.regolith = this.put("habitat_regolith", SHELL.x, SHELL.y).setAlpha(0);
-    P.sandbags = this.put("habitat_sandbags", SHELL.x, SHELL.y).setAlpha(0);
-    P.radiator = this.put("prop_radiator", SHELL.x + 30, SHELL.y - 4, 0, 1, true);
-    P.solar = this.put("prop_solar_panel", SHELL.x + SHELL.w - 190, SHELL.y - 4, 0, 1, true);
-    P.rover = this.put("prop_rover", 20, 500, 0, 1, true);
-    P.cave = this.put("prop_cave_mouth", 870, 330, 0.5, 1).setAlpha(0);
-    P.pit = this.put("prop_pit", 860, 500, 0.5, 1).setAlpha(0);
-    P.lander = this.put("prop_lander", 880, 500, 0.5, 1, true).setAlpha(0);
-    P.telescope = this.put("prop_telescope", 900, 500, 0.5, 1, true).setAlpha(0);
-    const pw = this.modules.power, gh = this.modules.greenhouse;
-    P.crack = this.put("fx_seal_crack", SHELL.x + 330, SHELL.y + 170, 0.5, 0.5).setAlpha(0);
-    P.frostBattery = this.put("fx_frost_battery", pw.x + 110, pw.y + 70, 0.5, 0.5).setAlpha(0);
-    P.mold = this.put("fx_mold", gh.x + 110, gh.y + 80, 0.5, 0.5).setAlpha(0);
+    if (!realImages.has("habitat_regolith")) P.regolith.setDisplaySize(SHELL.w, SHELL.h);
+    P.sandbags = this.put("habitat_sandbags", sr.x - 10, sr.y - 10).setAlpha(0);
+    if (this.art) {
+      // The radiators and solar panels are part of the picture; dust and damage go on top.
+      P.radiator = this.put("fx_radiator_dust", SPOT.radiator.x, SPOT.radiator.y).setAlpha(0);
+      P.solar = this.put("fx_solar_damage", SPOT.solar.x, SPOT.solar.y).setAlpha(0);
+    } else {
+      P.radiator = this.put("prop_radiator", SHELL.x + 30, SHELL.y - 4, 0, 1, true);
+      P.solar = this.put("prop_solar_panel", SHELL.x + SHELL.w - 190, SHELL.y - 4, 0, 1, true);
+    }
+    P.rover = this.put("prop_rover", SPOT.rover.x, SPOT.rover.y, 0.5, 1, true);
+    P.cave = this.put("prop_cave_mouth", SPOT.cave.x, SPOT.cave.y, 0.5, 1).setAlpha(0);
+    P.pit = this.put("prop_pit", SPOT.pit.x, SPOT.pit.y, 0.5, 1).setAlpha(0);
+    P.lander = this.put("prop_lander", SPOT.lander.x, SPOT.lander.y, 0.5, 1, true).setAlpha(0);
+    P.telescope = this.put("prop_telescope", SPOT.telescope.x, SPOT.telescope.y, 0.5, 1, true).setAlpha(0);
+    P.crack = this.put("fx_seal_crack", SPOT.hub.x, SPOT.hub.y, 0.5, 0.5).setAlpha(0);
+    P.frostBattery = this.put("fx_frost_battery", pw.x + pw.w * 0.3, pw.y + pw.h * 0.6, 0.5, 0.5).setAlpha(0);
+    P.mold = this.put("fx_mold", gh.x + gh.w * 0.62, gh.y + gh.h * 0.6, 0.5, 0.5).setAlpha(0);
     this.stage.add([P.regolith, P.sandbags, P.radiator, P.solar, P.rover, P.cave, P.pit, P.lander, P.telescope, P.crack, P.frostBattery, P.mold]);
   }
 
@@ -200,19 +264,39 @@ export class Outpost extends Scene {
     this.back.setScale(cover).setPosition((w - STAGE.w * cover) / 2, (h - STAGE.h * cover) / 2);
     const fit = Math.min(w / STAGE.w, h / STAGE.h);
     this.stage.setScale(fit).setPosition((w - STAGE.w * fit) / 2, (h - STAGE.h * fit) / 2);
+    this.siLabel?.setPosition(8, h - 8);
+  }
+
+  /** Where a crew member stands at home: inside their module, Ana left of centre, the specialist right. */
+  private homeOf(id: Specialist | "ana") {
+    const m = this.modules[HOME[id]];
+    return { x: m.x + m.w * (id === "ana" ? 0.3 : 0.7), y: m.y + m.h - 10 };
+  }
+
+  /** A crew sheet (26 frames) plays its animations; a single delivered picture swaps poses instead. */
+  private isSheet = (s: GameObjects.Sprite) => realImages.has(s.texture.key) && s.texture.frameTotal > 2;
+
+  private crewPose(s: GameObjects.Sprite, pose: "idle" | "walk" | "work" | "worried" | "cold" | "cheer") {
+    const key = s.getData("key") as string;
+    if (realImages.has(key) && this.textures.get(key).frameTotal > 2) { s.play(`${key}_${pose}`, true); return; }
+    const talk = pose === "cheer" || pose === "work";
+    s.setTexture(talk && this.textures.exists(`${key}_talk`) && realImages.has(`${key}_talk`) ? `${key}_talk` : key);
+    if (pose === "worried") s.setTint(0xffd6c8); else if (pose === "cold") s.setTint(0xcfe6ff); else s.clearTint();
   }
 
   private makeCrew(key: string, id: Specialist | "ana"): GameObjects.Sprite {
-    const m = this.modules[HOME[id]];
-    const s = this.put(key, m.x + (id === "ana" ? 70 : 150), m.y + MOD_H - 6, 0.5, 1, true) as GameObjects.Sprite;
-    if (realImages.has(key)) {
+    const home = this.homeOf(id);
+    const s = this.put(key, home.x, home.y, 0.5, 1, true) as GameObjects.Sprite;
+    s.setData("key", key);
+    if (this.isSheet(s)) {
       for (const [name, a, b, fps, repeat] of CREW_ANIMS) {
         const k = `${key}_${name}`;
         if (!this.anims.exists(k)) this.anims.create({ key: k, frames: this.anims.generateFrameNumbers(key, { start: a, end: b }), frameRate: fps, repeat });
       }
       s.play(`${key}_idle`);
     } else if (!this.reduce) {
-      this.tweens.add({ targets: s, y: s.y - 3, duration: 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      // Breathing: a tiny stretch, so it never fights a walk (which moves x and y).
+      this.tweens.add({ targets: s, scaleY: s.scaleY * 1.03, duration: 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     }
     this.stage.add(s);
     return s;
@@ -238,20 +322,55 @@ export class Outpost extends Scene {
     this.setFrost(s.res.warmth, false);
     this.setPlants(s.res.food, false);
     this.setFrame(this.modules.lab.img, 0); this.setFrame(this.modules.stormroom.img, 0);
+    this.stormDoor?.setAlpha(0);
+    if (this.art) {
+      this.buried = s.flags.includes("buried");
+      this.showBase(true);
+      this.props.radiator.setAlpha(0);
+      this.props.rover.setPosition(SPOT.rover.x, SPOT.rover.y).clearTint();
+    }
     this.glow.setAlpha(0); this.growlights.setAlpha(0);
     Object.values(this.modules).forEach(m => m.pips.removeAll(true));
-    this.props.regolith.setAlpha(s.flags.includes("buried") ? 1 : 0).setY(SHELL.y);
+    this.props.regolith.setAlpha(!this.art && s.flags.includes("buried") ? 1 : 0).setY(SHELL.y);
     this.props.sandbags.setAlpha(s.flags.includes("sandbagged") ? 1 : 0);
     this.props.cave.setAlpha(s.flags.includes("cave") ? 1 : 0);
-    this.setFrame(this.props.solar, s.mods.some(m => m.delta < 0) ? 1 : 0);
+    this.propState(this.props.solar, s.mods.some(m => m.delta < 0) ? 1 : 0);
     for (const k of ["pit", "lander", "telescope", "crack", "frostBattery", "mold"] as const) this.props[k].setAlpha(0);
     this.props.mold.setScale(baseScale("fx_mold"));
     this.crewHome();
     this.crewMood(s);
   }
 
+  /** Art mode: show the outpost picture for the time of day and whether it's buried. */
+  private showBase(instant: boolean) {
+    const want = this.night ? (this.buried ? "nightBuried" : "night") : (this.buried ? "dayBuried" : "day");
+    for (const [k, v] of Object.entries(this.bases) as [keyof typeof this.bases, Visual][]) {
+      this.tweens.killTweensOf(v);
+      if (instant) v.setAlpha(k === want ? 1 : 0);
+      else this.tweens.add({ targets: v, alpha: k === want ? 1 : 0, duration: 1200 });
+    }
+    this.props.rover?.setTexture(this.night && realImages.has("prop_rover_night") ? "prop_rover_night" : "prop_rover");
+    this.refreshOverlays(instant);
+  }
+
+  /** Art mode: each module's warning / emergency look, lit for the time of day. */
+  private refreshOverlays(instant: boolean) {
+    for (const id of Object.keys(this.overlays) as ModuleId[]) {
+      const looks = this.overlays[id]!, st = this.moduleStatus[id] ?? "normal";
+      for (const state of ["warning", "emergency"] as const) {
+        for (const time of ["day", "night"] as const) {
+          const v = looks[state][time];
+          const alpha = st === state && (time === "night") === this.night ? 1 : 0;
+          this.tweens.killTweensOf(v);
+          if (instant) v.setAlpha(alpha); else this.tweens.add({ targets: v, alpha, duration: 400 });
+        }
+      }
+    }
+  }
+
   private setNight(night: boolean, instant: boolean) {
     this.night = night;
+    if (this.art) { this.showBase(instant); return; }
     const d = instant ? 0 : 1200;
     // Both sets are drawn only while they cross-fade; afterwards the covered set
     // is switched off (the far layers are opaque, so nothing shows through).
@@ -259,13 +378,14 @@ export class Outpost extends Scene {
     [...this.bgDay, ...this.bgNight].forEach(v => v.setVisible(true));
     this.tweens.killTweensOf(this.bgNight);
     this.tweens.add({ targets: this.bgNight, alpha: night ? 1 : 0, duration: d, onComplete: () => { if (this.night === night) covered.forEach(v => v.setVisible(false)); } });
-    this.tweens.add({ targets: this.earth, alpha: night ? 1 : 0, duration: d });
+    if (!this.art) this.tweens.add({ targets: this.earth, alpha: night ? 1 : 0, duration: d });
   }
 
-  private statusOf = (v: number) => (v <= 0 ? "emergency" : v <= 2 ? "warning" : "normal") as "normal" | "warning" | "emergency";
+  private statusOf = (v: number) => (v <= 0 ? "emergency" : v <= 2 ? "warning" : "normal") as Status;
 
-  private setModuleStatus(id: ModuleId, value: number) {
+  private setModuleStatus(id: ModuleId, value: number, animate = false) {
     const st = this.statusOf(value);
+    if (this.art) { this.moduleStatus[id] = st; this.refreshOverlays(!animate); return; }
     const img = this.modules[id].img;
     if (realImages.has(MODULES[id].key)) this.setFrame(img, st === "normal" ? 0 : st === "warning" ? 1 : 2);
     else if (st === "normal") img.clearTint();
@@ -273,13 +393,19 @@ export class Outpost extends Scene {
   }
 
   private setFrame(v: Visual, frame: number) {
-    if (v instanceof GameObjects.Sprite && realImages.has(v.texture.key)) v.setFrame(frame);
+    if (v instanceof GameObjects.Sprite && realImages.has(v.texture.key) && v.texture.frameTotal > frame + 1) v.setFrame(frame);
     else if (frame === 0) v.clearTint();
     else v.setTint(frame === 1 ? 0xd8e6ff : 0x9a9a9a);
   }
 
+  /** A prop's look: a frame or tint on placeholders, an overlay shown or hidden in art mode. */
+  private propState(v: Visual, frame: number) {
+    if (this.art && (v === this.props.radiator || v === this.props.solar)) v.setAlpha(frame > 0 ? 1 : 0);
+    else this.setFrame(v, frame);
+  }
+
   private setLights(power: number, animate: boolean) {
-    const alpha = 0.7 * (1 - Math.min(10, power) / 10);
+    const alpha = (this.art ? 0.45 : 0.7) * (1 - Math.min(10, power) / 10);
     const darks = Object.values(this.modules).map(m => m.dark);
     if (animate) return this.tween({ targets: darks, fillAlpha: alpha, duration: 400 });
     darks.forEach(d => d.setFillStyle(0x000000, alpha));
@@ -306,8 +432,8 @@ export class Outpost extends Scene {
   private crewHome() {
     const place = (s: GameObjects.Sprite | undefined, id: Specialist | "ana") => {
       if (!s) return;
-      const m = this.modules[HOME[id]];
-      s.setPosition(m.x + (id === "ana" ? 70 : 150), m.y + MOD_H - 6);
+      const h = this.homeOf(id);
+      s.setPosition(h.x, h.y).setFlipX(false);
     };
     place(this.crew.ana, "ana");
     if (this.crew.specialist) place(this.crew.spec, this.crew.specialist);
@@ -315,9 +441,7 @@ export class Outpost extends Scene {
 
   private crewMood(s: GameState) {
     const mood = s.emergencies.length ? "worried" : s.res.warmth <= 2 ? "cold" : "idle";
-    for (const c of [this.crew.ana, this.crew.spec]) {
-      if (c && realImages.has(c.texture.key)) c.play(`${c.texture.key}_${mood}`, true);
-    }
+    for (const c of [this.crew.ana, this.crew.spec]) if (c) this.crewPose(c, mood);
   }
 
   // ---------------------------------------------------------------------------------
@@ -357,7 +481,7 @@ export class Outpost extends Scene {
       case "delayed": return this.showBanner(`From Turn ${step.fromTurn + 1}`, 700);
       case "mini": this.sfx("sfx_star_gain"); return this.floatAt("lab", "Star saved by hand!", "#9affb0", true);
       case "flag": return this.flag(step.flag);
-      case "sunMod": this.setFrame(this.props.solar, 1); return this.floatAt("power", `Sunlight ${step.delta} every Day`, "#ffd27a");
+      case "sunMod": this.propState(this.props.solar, 1); return this.floatAt("power", `Sunlight ${step.delta} every Day`, "#ffd27a");
       case "status": return this.status(step.status, step.res);
       case "sweep": return this.sweep(step.to);
       case "end": return this.endOfRun(step.status);
@@ -377,7 +501,8 @@ export class Outpost extends Scene {
     this.sfx("sfx_shelter_door");
     this.setFrame(this.modules.stormroom.img, 1);
     const sr = this.modules.stormroom;
-    await Promise.all(crew.map((c, i) => c ? this.walkTo(c, sr.x + 70 + i * 70, sr.y + MOD_H - 6) : Promise.resolve()));
+    await Promise.all(crew.map((c, i) => c ? this.walkTo(c, sr.x + sr.w * (0.35 + i * 0.3), sr.y + sr.h - 22) : Promise.resolve()));
+    if (this.stormDoor) await this.tween({ targets: this.stormDoor, alpha: 1, duration: 400 });   // lockdown
   }
 
   private async flowCells(plan: DailyPlan, isDay: boolean) {
@@ -388,10 +513,10 @@ export class Outpost extends Scene {
     for (const [id, count] of targets) {
       const m = this.modules[id];
       for (let i = 0; i < count; i++) {
-        const cell = this.add.image(from.x + MOD_W / 2, from.y + MOD_H / 2, "cell");
+        const cell = this.add.image(from.x + from.w / 2, from.y + from.h / 2, "cell");
         this.stage.add(cell);
         const delay = (this.reduce ? 0 : n++ * 70);
-        flights.push(this.tween({ targets: cell, x: m.x + MOD_W - 16 - i * 12, y: m.y + 16, delay, duration: this.reduce ? 1 : 420, ease: "Cubic.easeInOut" })
+        flights.push(this.tween({ targets: cell, x: m.x + m.w - 16 - i * 12, y: m.y + 16, delay, duration: this.reduce ? 1 : 420, ease: "Cubic.easeInOut" })
           .then(() => { this.sfx("sfx_cell_snap"); cell.destroy(); this.addPip(m); }));
       }
     }
@@ -412,18 +537,18 @@ export class Outpost extends Scene {
     const show = this.showBanner(title, 1300);
     const P = this.props;
     switch (cardId) {
-      case "B0": await this.driveRover(SHELL.x - 20, 500); break;
-      case "D2": this.setFrame(P.radiator, 2); await this.puffs(P.radiator.x + 60, P.radiator.y - 30, 5); break;
+      case "B0": await this.roverTrip(70, 500); break;
+      case "D2": this.propState(P.radiator, 2); await this.puffs(P.radiator.x + 60, P.radiator.y + (this.art ? 20 : -30), 5); break;
       case "D3": await this.tint(0xffb36b, 600); break;
-      case "D4": await Promise.all([this.fadeIn(P.pit, 600), this.driveRover(700, 500)]); break;
-      case "D6": await this.driveRover(820, 500); await this.driveRover(20, 500); break;
+      case "D4": await Promise.all([this.fadeIn(P.pit, 600), this.roverTrip(SPOT.pit.x - 70, 525)]); break;
+      case "D6": await this.roverTrip(935, 525); break;
       case "D7": this.sfx("sfx_lander"); P.lander.setAlpha(1).setY(150); await this.tween({ targets: P.lander, y: 500, duration: 1100, ease: "Quad.easeOut" }); this.setFrame(P.lander, 1); await this.puffs(880, 495, 6); break;
       case "D8": await this.meteoroid(P.solar.x + 80, P.solar.y - 40); break;
       case "N1": case "N2": this.sfx("sfx_frost"); await this.tween({ targets: Object.values(this.modules).map(m => m.frost), alpha: 0.9, duration: 500, yoyo: true }); break;
       case "N3": await this.quake(); break;
       case "N4": await this.fadeIn(P.frostBattery, 500); break;
       case "N5": await this.radioWaves(); break;
-      case "N6": this.setFrame(P.rover, 1); await this.wait(500); break;
+      case "N6": P.rover.setTint(0xb8d4ff); await this.wait(500); break;
       case "N7": await this.mold(); break;
       case "N8": await this.tint(0x8a6bff, 700); break;
       case "N9": await this.fadeIn(P.telescope, 600); break;
@@ -452,7 +577,7 @@ export class Outpost extends Scene {
     const why = cause === "nightCold" ? "Cold night: " : cause === "upkeep" ? "The crew ate: " : cause === "sunWarmth" ? "Sunlight: " : "";
     const visual = res === "power" ? this.setLights(to, true) : res === "warmth" ? this.setFrost(to, true) : this.setPlants(to, true);
     if (cause === "nightCold" && to < from) this.sfx("sfx_frost");
-    this.setModuleStatus(RES_MODULE[res], to);
+    this.setModuleStatus(RES_MODULE[res], to, true);
     await Promise.all([visual, this.floatAt(RES_MODULE[res], `${why}${label} ${d > 0 ? "+" : "−"}${Math.abs(d)}`, color)]);
   }
 
@@ -501,7 +626,7 @@ export class Outpost extends Scene {
     const color = status === "recovered" ? 0x7dff9a : status === "warning" ? 0xffc46b : 0xff5d5d;
     this.sfx(status === "emergency" ? "sfx_emergency" : status === "warning" ? "sfx_warning" : "sfx_star_gain");
     if (status === "emergency" && !this.reduce) this.cameras.main.shake(250, 0.004);
-    const box = this.add.rectangle(m.x, m.y, MOD_W, MOD_H).setOrigin(0, 0).setStrokeStyle(5, color);
+    const box = this.add.rectangle(m.x, m.y, m.w, m.h).setOrigin(0, 0).setStrokeStyle(5, color);
     this.stage.add(box);
     await this.tween({ targets: box, alpha: { from: 1, to: 0.2 }, duration: 260, yoyo: true, repeat: 1 });
     box.destroy();
@@ -521,7 +646,7 @@ export class Outpost extends Scene {
 
   private async endOfRun(status: "won" | "lost") {
     if (status === "won") {
-      for (const c of [this.crew.ana, this.crew.spec]) if (c && realImages.has(c.texture.key)) c.play(`${c.texture.key}_cheer`);
+      for (const c of [this.crew.ana, this.crew.spec]) if (c) this.crewPose(c, "cheer");
       await this.flyStars(5, this.modules.lab, true);
     } else {
       await this.tween({ targets: Object.values(this.modules).map(m => m.dark), fillAlpha: 0.6, duration: 600 });
@@ -531,7 +656,7 @@ export class Outpost extends Scene {
   // --- small effects -----------------------------------------------------------------
 
   private async flyStars(n: number, from: Module, celebrate = false) {
-    const start = this.toScreen(from.x + MOD_W / 2, from.y + MOD_H / 2);
+    const start = this.toScreen(from.x + from.w / 2, from.y + from.h / 2);
     const flights: Promise<void>[] = [];
     for (let i = 0; i < Math.min(n, 6); i++) {
       const s = this.add.image(start.x, start.y, "fx_star").setDepth(11);
@@ -562,6 +687,19 @@ export class Outpost extends Scene {
     if (this.plants.length) await this.tween({ targets: this.plants, scaleY: "+=0.25", duration: 160, yoyo: true });
   }
 
+  /** Out of the garage, along the open ground below the base, and back home (placeholders: one drive). */
+  private async roverTrip(x: number, y: number) {
+    if (!this.art) { await this.driveRover(x, y); return; }
+    const door = SPOT.garageDoor;
+    await this.driveRover(door.x, door.y);
+    await this.driveRover(x, door.y);
+    if (y !== door.y) await this.driveRover(x, y);
+    await this.wait(300);
+    if (y !== door.y) await this.driveRover(x, door.y);
+    await this.driveRover(door.x, door.y);
+    await this.driveRover(SPOT.rover.x, SPOT.rover.y);
+  }
+
   private async driveRover(x: number, y: number) {
     const r = this.props.rover;
     r.setFlipX(x < r.x);
@@ -570,11 +708,10 @@ export class Outpost extends Scene {
   }
 
   private async walkTo(c: GameObjects.Sprite, x: number, y: number) {
-    const real = realImages.has(c.texture.key);
-    if (real) c.play(`${c.texture.key}_walk`, true);
+    this.crewPose(c, "walk");
     c.setFlipX(x < c.x);
     await this.tween({ targets: c, x, y, duration: this.reduce ? 150 : 700, ease: "Sine.easeInOut" });
-    if (real) c.play(`${c.texture.key}_idle`, true);
+    this.crewPose(c, "idle");
   }
 
   private async puffs(x: number, y: number, n: number) {
@@ -596,12 +733,12 @@ export class Outpost extends Scene {
   }
 
   private async radioWaves() {
-    const from = { x: SHELL.x + 470, y: SHELL.y };
+    const from = this.art ? SPOT.antenna : { x: SHELL.x + 470, y: SHELL.y };
     const rings = [0, 1, 2].map(() => { const r = this.add.circle(from.x, from.y, 8).setStrokeStyle(3, 0x9fd3ff); this.stage.add(r); return r; });
-    this.tweens.add({ targets: this.earth, alpha: 1, duration: 300 });
+    if (!this.art) this.tweens.add({ targets: this.earth, alpha: 1, duration: 300 });
     await Promise.all(rings.map((r, i) => this.tween({ targets: r, scale: 10, alpha: 0, duration: 900, delay: i * 250 })));
     rings.forEach(r => r.destroy());
-    if (!this.night) this.tweens.add({ targets: this.earth, alpha: 0, duration: 300 });
+    if (!this.night && !this.art) this.tweens.add({ targets: this.earth, alpha: 0, duration: 300 });
   }
 
   private async fadeIn(v: Visual, duration: number) { await this.tween({ targets: v, alpha: 1, duration }); }
@@ -612,6 +749,14 @@ export class Outpost extends Scene {
   private async pileRegolith() {
     const P = this.props;
     this.sfx("sfx_regolith");
+    if (this.art) {
+      // The buried picture fades in while loads of regolith kick up dust around the base.
+      this.buried = true;
+      this.showBase(false);
+      if (!this.reduce) await Promise.all([0, 1, 2].map(i => this.wait(i * 300).then(() => this.puffs(200 + i * 260, 470 - (i % 2) * 300, 6))));
+      await this.wait(this.reduce ? 300 : 600);
+      return;
+    }
     if (this.reduce) { await this.fadeIn(P.regolith, 400); return; }
     P.regolith.setY(SHELL.y + 60);
     const loads = [0, 1, 2].map(i => this.wait(i * 300).then(() => this.puffs(SHELL.x + 120 + i * 230, SHELL.y + SHELL.h - 60, 6)));
@@ -625,7 +770,7 @@ export class Outpost extends Scene {
       this.cameras.main.shake(1100, 0.007);
       await Promise.all([
         this.tween({ targets: this.stage, x: this.stage.x + 5, duration: 70, yoyo: true, repeat: 6 }),
-        ...Object.values(this.modules).map((m, i) => this.wait(i * 90).then(() => this.puffs(m.x + 100, m.y + 30, 3))),
+        ...Object.values(this.modules).map((m, i) => this.wait(i * 90).then(() => this.puffs(m.x + m.w / 2, m.y + 30, 3))),
       ]);
     } else await this.puffs(SHELL.x + 350, SHELL.y + 40, 2);
     await this.fadeIn(this.props.crack, 300);
@@ -679,7 +824,7 @@ export class Outpost extends Scene {
 
   private floatAt(id: ModuleId, text: string, color: string, big = false) {
     const m = this.modules[id];
-    return this.floatText(this.stage, m.x + MOD_W / 2, m.y + 40, text, color, big);
+    return this.floatText(this.stage, m.x + m.w / 2, m.y + 40, text, color, big);
   }
 
   private floatScreen(x: number, y: number, text: string, color: string, big = false) {
@@ -718,7 +863,8 @@ export class Outpost extends Scene {
     if (this.cache.audio.exists(key)) this.sound.play(key, { volume: EFFECT_LEVEL * this.sfxVol });
   }
 
-  private playMusic(key: string) {
+  private playMusic(wanted: string) {
+    const key = this.cache.audio.exists(wanted) ? wanted : (MUSIC_FALLBACK[wanted] ?? wanted);   // night reuses the day track
     if (key === this.musicKey) return;
     const old = this.music;
     if (old) this.tweens.add({ targets: old, volume: 0, duration: 800, onComplete: () => old.destroy() });

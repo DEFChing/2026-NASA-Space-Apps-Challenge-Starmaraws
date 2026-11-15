@@ -1,10 +1,23 @@
 {
   "_meta": {
     "si": {
-      "generated": true,
-      "how": "Empty list set up by Claude (Anthropic) for the Credits screen; the team writes its own names and roles",
-      "humanReviewed": false
+      "generated": false,
+      "how": "Names and roles given by the team",
+      "humanReviewed": true
     }
   },
-  "team": []
+  "team": [
+    {
+      "name": "Jon Rian Añonuevo",
+      "role": "Documentation and Asset Collection"
+    },
+    {
+      "name": "Daniel Emile Ching",
+      "role": "Lead Developer and Designer"
+    },
+    {
+      "name": "Michael Udarbe Jr.",
+      "role": "Co-Designer"
+    }
+  ]
 }

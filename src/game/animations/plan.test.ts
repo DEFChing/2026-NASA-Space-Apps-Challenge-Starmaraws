@@ -96,10 +96,12 @@ describe("asset manifest", () => {
     for (const a of IMAGES) expect(a.w * 2 * (a.frames ?? 1), a.key).toBeLessThanOrEqual(4096);
   });
 
-  test("crew sheets match the contract: 26 frames of 128 × 192 px", () => {
-    for (const k of ["crew_ana", "crew_kai", "crew_mei", "crew_sol"]) {
-      const a = IMAGES.find(x => x.key === k)!;
-      expect([a.w * 2, a.h * 2, a.frames]).toEqual([128, 192, 26]);
+  test("crew: one standing and one talking picture each, 140 px tall (the Step 8 art drop)", () => {
+    for (const who of ["ana", "kai", "mei", "sol"]) {
+      for (const k of [`crew_${who}`, `crew_${who}_talk`]) {
+        const a = IMAGES.find(x => x.key === k)!;
+        expect([a.h * 2, a.frames ?? 1], k).toEqual([140, 1]);
+      }
     }
   });
 

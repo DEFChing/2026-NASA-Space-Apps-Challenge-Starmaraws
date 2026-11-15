@@ -6,5 +6,627 @@
       "humanReviewed": true
     }
   },
-  "credits": []
+  "credits": [
+    {
+      "file": "art/bg_title.webp",
+      "source_url": "",
+      "title": "Main menu background",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From main_menu_bg.webp: compressed",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_ana.webp",
+      "source_url": "",
+      "title": "Commander Ana",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Ana.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_ana_talk.webp",
+      "source_url": "",
+      "title": "Commander Ana, talking",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Ana_talking.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_kai.webp",
+      "source_url": "",
+      "title": "Kai the Engineer",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Kai.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_kai_talk.webp",
+      "source_url": "",
+      "title": "Kai the Engineer, talking",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Kai_talking.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_mei.webp",
+      "source_url": "",
+      "title": "Mei the Botanist",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Mei.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_mei_talk.webp",
+      "source_url": "",
+      "title": "Mei the Botanist, talking",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Mei_talking.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_sol.webp",
+      "source_url": "",
+      "title": "Sol the Doctor",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Sol.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/crew_sol_talk.webp",
+      "source_url": "",
+      "title": "Sol the Doctor, talking",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Sol_talking.webp: trimmed and resized to 140 px tall",
+      "si": "yes"
+    },
+    {
+      "file": "art/fx_frost_battery.webp",
+      "source_url": "",
+      "title": "Frost on the battery",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/fx_frost_window.webp",
+      "source_url": "",
+      "title": "Frost on the windows",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/fx_growlights.webp",
+      "source_url": "",
+      "title": "Grow lights",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/fx_heater_glow.webp",
+      "source_url": "",
+      "title": "Heater glow",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/fx_mold.webp",
+      "source_url": "",
+      "title": "Mold",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/fx_radiator_dust.webp",
+      "source_url": "",
+      "title": "Dust on the radiators",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/fx_seal_crack.webp",
+      "source_url": "",
+      "title": "Cracked seal",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/fx_solar_damage.webp",
+      "source_url": "",
+      "title": "Micrometeoroid damage on a solar panel",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/habitat_sandbags.webp",
+      "source_url": "",
+      "title": "Sandbags around the storm room",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/logo_title.webp",
+      "source_url": "",
+      "title": "CraterQuest banner",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Lettered in Inter Display (SIL Open Font License)",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/mentor_amara.webp",
+      "source_url": "",
+      "title": "Flight Director Amara (4 moods)",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/outpost_day.webp",
+      "source_url": "",
+      "title": "The outpost by day",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Normal_Outpost.webp: rover lifted out, resized to 1920x1080",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_day_buried.webp",
+      "source_url": "",
+      "title": "The outpost buried in regolith",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Buried Outpost.webp: rover lifted out, resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_food_emergency.webp",
+      "source_url": "",
+      "title": "Food module, emergency",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Emergency_Outpost.webp: cut out over the module",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_food_emergency_night.webp",
+      "source_url": "",
+      "title": "Food module, emergency, at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Emergency_Outpost.webp: cut out over the module, relit for night",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_food_warning.webp",
+      "source_url": "",
+      "title": "Food module, warning",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Warning_Outpost.webp: cut out over the module",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_food_warning_night.webp",
+      "source_url": "",
+      "title": "Food module, warning, at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Warning_Outpost.webp: cut out over the module, relit for night",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_night.webp",
+      "source_url": "",
+      "title": "The outpost at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Normal_Outpost.webp: relit with the lighting of Normal_night_buried.webp (by Claude), rover lifted out",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_night_buried.webp",
+      "source_url": "",
+      "title": "The buried outpost at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Normal_night_buried.webp: rover lifted out, resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_power_emergency.webp",
+      "source_url": "",
+      "title": "Power module, emergency",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Emergency_Outpost.webp: cut out over the module",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_power_emergency_night.webp",
+      "source_url": "",
+      "title": "Power module, emergency, at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Emergency_Outpost.webp: cut out over the module, relit for night",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_power_warning.webp",
+      "source_url": "",
+      "title": "Power module, warning",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Warning_Outpost.webp: cut out over the module",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_power_warning_night.webp",
+      "source_url": "",
+      "title": "Power module, warning, at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Warning_Outpost.webp: cut out over the module, relit for night",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_storm_closed.webp",
+      "source_url": "",
+      "title": "The inner storm room locked down",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From innerstorm_closed.webp: fitted over the storm room",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_warmth_emergency.webp",
+      "source_url": "",
+      "title": "Warmth module, emergency",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Emergency_Outpost.webp: cut out over the module",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_warmth_emergency_night.webp",
+      "source_url": "",
+      "title": "Warmth module, emergency, at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Emergency_Outpost.webp: cut out over the module, relit for night",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_warmth_warning.webp",
+      "source_url": "",
+      "title": "Warmth module, warning",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Warning_Outpost.webp: cut out over the module",
+      "si": "yes"
+    },
+    {
+      "file": "art/outpost_warmth_warning_night.webp",
+      "source_url": "",
+      "title": "Warmth module, warning, at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Warning_Outpost.webp: cut out over the module, relit for night",
+      "si": "yes"
+    },
+    {
+      "file": "art/photo_finale_1.webp",
+      "title": "The Apollo 11 landing site, seen from orbit by NASA's Lunar Reconnaissance Orbiter",
+      "author": "NASA (exact credit line to be recorded)",
+      "source_url": "",
+      "licence": "NASA media usage guidelines (to confirm with the source page)",
+      "changes": "Resized only",
+      "si": "no"
+    },
+    {
+      "file": "art/photo_finale_2.webp",
+      "title": "The Mare Tranquillitatis pit, seen by NASA's Lunar Reconnaissance Orbiter",
+      "author": "NASA (exact credit line to be recorded)",
+      "source_url": "",
+      "licence": "NASA media usage guidelines (to confirm with the source page)",
+      "changes": "Resized only",
+      "si": "no"
+    },
+    {
+      "file": "art/photo_finale_3.webp",
+      "title": "A photo from NASA's Artemis II mission",
+      "author": "NASA (exact credit line to be recorded)",
+      "source_url": "",
+      "licence": "NASA media usage guidelines (to confirm with the source page)",
+      "changes": "Resized only",
+      "si": "no"
+    },
+    {
+      "file": "art/portrait_ana.webp",
+      "source_url": "",
+      "title": "Commander Ana (portrait)",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Ana_icon.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/portrait_kai.webp",
+      "source_url": "",
+      "title": "Kai the Engineer (portrait)",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Kai_icon.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/portrait_mei.webp",
+      "source_url": "",
+      "title": "Mei the Botanist (portrait)",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Mei_icon.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/portrait_sol.webp",
+      "source_url": "",
+      "title": "Sol the Doctor (portrait)",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Sol_icon.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/prop_cave_mouth.webp",
+      "source_url": "",
+      "title": "Cave mouth",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/prop_lander.webp",
+      "source_url": "",
+      "title": "Cargo lander",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/prop_pit.webp",
+      "source_url": "",
+      "title": "Lava-tube pit",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/prop_rover.webp",
+      "source_url": "",
+      "title": "The rover",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Normal_Outpost.webp: cut out of the garage",
+      "si": "yes"
+    },
+    {
+      "file": "art/prop_rover_night.webp",
+      "source_url": "",
+      "title": "The rover at night",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Normal_Outpost.webp: cut out of the garage, relit for night",
+      "si": "yes"
+    },
+    {
+      "file": "art/prop_telescope.webp",
+      "source_url": "",
+      "title": "Telescope",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/story_intro_1.webp",
+      "source_url": "",
+      "title": "The acceptance letter",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From letter.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/story_intro_2.webp",
+      "source_url": "",
+      "title": "The simulation room, Flight Director Amara on screen",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Simulation Room.webp: Amara drawn onto the big screen by Claude (Anthropic)",
+      "si": "yes: room by the assets team's SI tool; Amara by Claude (Anthropic)"
+    },
+    {
+      "file": "art/story_intro_3.webp",
+      "source_url": "",
+      "title": "The simulation mask",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From mask_on.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/story_intro_4.webp",
+      "source_url": "",
+      "title": "Simulation loading, seen through the mask",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From outpost picture: blurred, with a visor display drawn by Claude (Anthropic)",
+      "si": "yes: outpost by the assets team's SI tool; visor by Claude (Anthropic)"
+    },
+    {
+      "file": "art/story_landing.webp",
+      "source_url": "",
+      "title": "Landing at sunrise",
+      "author": "Claude (Anthropic), for Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "Drawn for the game",
+      "si": "yes: Claude (Anthropic), drawn in code"
+    },
+    {
+      "file": "art/story_mask_1.webp",
+      "source_url": "",
+      "title": "SIMULATION ENDED glitch",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From the night outpost: glitched in code by Claude (Anthropic)",
+      "si": "yes: outpost by the assets team's SI tool; glitch by Claude (Anthropic)"
+    },
+    {
+      "file": "art/story_mask_2.webp",
+      "source_url": "",
+      "title": "Lifting the mask off",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From mask_on.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "art/story_mask_3.webp",
+      "source_url": "",
+      "title": "The simulation room",
+      "author": "Team Starmaraws",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From Simulation Room.webp: resized",
+      "si": "yes"
+    },
+    {
+      "file": "audio/amb_hum.mp3",
+      "title": "Habitat hum",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From habitatHum.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/music_day.mp3",
+      "title": "Mission music (also plays at night)",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From rocketLevel.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/music_storm.mp3",
+      "title": "Storm music",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From storm.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/music_title.mp3",
+      "title": "Title theme",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From titleTheme.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/sfx_card_reveal.mp3",
+      "title": "Card reveal",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From cardDraw.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/sfx_emergency.mp3",
+      "title": "Emergency",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From warning (2).mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/sfx_glitch.mp3",
+      "title": "Glitch",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From glitch.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/sfx_option_select.mp3",
+      "title": "Option select",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From optionSelect.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/sfx_page_turn.mp3",
+      "title": "Page turn",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From pageFlip.mp3: renamed, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/sfx_quake.mp3",
+      "title": "Moonquake rumble",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From quakeRumble.mp3: first 4.5 s, faded out, SI tag added",
+      "si": "yes"
+    },
+    {
+      "file": "audio/sfx_warning.mp3",
+      "title": "Warning",
+      "author": "Team Starmaraws",
+      "source_url": "",
+      "licence": "Made by Team Starmaraws for CraterQuest",
+      "changes": "From warning.mp3: renamed, SI tag added",
+      "si": "yes"
+    }
+  ]
 }

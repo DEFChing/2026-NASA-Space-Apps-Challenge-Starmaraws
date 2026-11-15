@@ -14,7 +14,10 @@ import type { Card, Odds } from "../engine/types";
 import { formatDate } from "./text";
 
 interface Props {
-  onClose: () => void;
+  /** Left out on the credits page, where the sources are part of the page. */
+  onClose?: () => void;
+  /** The art and sound table (left out on the credits page, which lists them itself). */
+  showArt?: boolean;
   archive?: DonkiArchive | null;
   odds?: ForecastOdds;
   cards?: Card[];
@@ -38,7 +41,7 @@ const SIGNS: Record<Odds, (o: ForecastOdds) => string> = {
   },
 };
 
-export function Datasets({ onClose, archive = donkiArchive, odds = forecastOdds, cards = moonCards, facts = moonFacts, credits = moonCredits }: Props) {
+export function Datasets({ showArt = true, onClose, archive = donkiArchive, odds = forecastOdds, cards = moonCards, facts = moonFacts, credits = moonCredits }: Props) {
   const sourced = cards.filter(c => c.sources.length);
   return (
     <section className="panel datasets" aria-label="Datasets" data-testid="datasets">
@@ -103,6 +106,7 @@ export function Datasets({ onClose, archive = donkiArchive, odds = forecastOdds,
         ))}
       </ul>
 
+      {showArt && (<>
       <h2>Art and sound</h2>
       {credits.length ? (
         <table className="credits" data-testid="datasets-credits">
@@ -118,8 +122,9 @@ export function Datasets({ onClose, archive = donkiArchive, odds = forecastOdds,
           </tbody>
         </table>
       ) : <p data-testid="datasets-credits">Coming soon: the game still uses placeholder shapes and sounds.</p>}
+      </>)}
 
-      <button className="primary" data-testid="datasets-close" onClick={onClose}>Back</button>
+      {onClose && <button className="primary" data-testid="datasets-close" onClick={onClose}>Back</button>}
     </section>
   );
 }

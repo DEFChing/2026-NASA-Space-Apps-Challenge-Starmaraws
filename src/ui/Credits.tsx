@@ -3,15 +3,16 @@
  * model, then reviewed, edited and tested by the Junior Astronaut team. See AI_USAGE.md.
  */
 
-// The Credits screen: who made the game, where the data comes from, every art and sound
-// credit (credits.json) and "Made with help from AI", built from si-manifest.json so it
-// can never fall behind the project. Text only: no logos anywhere (Build Guide, Step 8).
+// The credits page (credits.html): who made the game, where the data comes from, every
+// art and sound credit (credits.json) and "Made with help from AI", built from
+// si-manifest.json so it can never fall behind the project. Text only: no logos anywhere.
 
 import manifestJson from "../../si-manifest.json";
 import teamJson from "../data/team.json";
 import { moonCredits } from "../engine/data";
 import type { Credit } from "../engine/facts";
 import { DONKI_URL } from "./Datasets";
+import { isSiCredit } from "./siArt";
 
 export interface TeamMember { name: string; role: string }
 export interface SiEntry { path: string; type: string; tool: string; how: string; humanReviewed: boolean }
@@ -51,11 +52,13 @@ export function siSummary(entries: SiEntry[]): string[] {
   });
 }
 
-const isSi = (c: Credit) => /^yes/i.test(c.si?.trim() ?? "");
+const isSi = isSiCredit;
 
 interface Props {
-  onClose: () => void;
-  onDatasets: () => void;
+  /** In the game: back to the title. On the credits page: a link back to the game instead. */
+  onClose?: () => void;
+  /** In the game: open the Datasets page. On the credits page the sources follow below. */
+  onDatasets?: () => void;
   team?: TeamMember[];
   credits?: Credit[];
   manifest?: SiEntry[];
@@ -63,11 +66,22 @@ interface Props {
 
 export function Credits({ onClose, onDatasets, team = readTeam(teamJson), credits = moonCredits, manifest = manifestJson as SiEntry[] }: Props) {
   const media = manifest.filter(e => ["image", "audio", "video"].includes(e.type));
+  const pictures = credits.filter(c => c.file.startsWith("art/")), sounds = credits.filter(c => c.file.startsWith("audio/"));
+  const notSi = pictures.filter(c => !isSi(c));
+  const row = (c: Credit) => (
+    <li key={c.file}>
+      {c.source_url ? <a href={c.source_url} target="_blank" rel="noreferrer">{c.title}</a> : c.title}: {c.author}
+      {!c.licence.startsWith(`Made by ${c.author}`) && <> ({c.licence})</>}
+      {c.changes && <>. {c.changes}</>}
+      {isSi(c) && <span className="si-tag inline"> · SI-generated{/^yes:\s*\S/i.test(c.si) ? ` (${c.si.replace(/^yes:\s*/i, "")})` : ""}</span>}
+    </li>
+  );
   return (
     <section className="panel datasets credits-screen" aria-label="Credits" data-testid="credits">
-      <h1>Credits</h1>
+      <h1>{onClose ? "Credits" : "CraterQuest · Credits"}</h1>
 
-      <h2>Made by</h2>
+      <h2>Made by Team Starmaraws</h2>
+      <p>CraterQuest is our entry for the NASA Space Apps Challenge 2026 (challenge: "Build a Junior Astronaut Mission Trainer").</p>
       {team.length ? (
         <ul className="team" data-testid="credits-team">
           {team.map(m => <li key={m.name}><strong>{m.name}</strong>{m.role && <> · {m.role}</>}</li>)}
@@ -80,19 +94,20 @@ export function Credits({ onClose, onDatasets, team = readTeam(teamJson), credit
         kept by the Community Coordinated Modeling Center at NASA Goddard. The event cards and facts link to their NASA and
         Canadian Space Agency sources.
       </p>
-      <button className="link" data-testid="credits-datasets" onClick={onDatasets}>See every source</button>
+      {onDatasets && <button className="link" data-testid="credits-datasets" onClick={onDatasets}>See every source</button>}
 
       <h2>Art and sound</h2>
       {credits.length ? (
-        <ul data-testid="credits-assets">
-          {credits.map(c => (
-            <li key={c.file}>
-              {c.source_url ? <a href={c.source_url} target="_blank" rel="noreferrer">{c.title}</a> : c.title} by {c.author} ({c.licence})
-              {c.changes && <>, {c.changes}</>}
-              {isSi(c) && <span className="si-tag"> · made with AI help ({c.si.replace(/^yes:?\s*/i, "") || "SI"})</span>}
-            </li>
-          ))}
-        </ul>
+        <div data-testid="credits-assets">
+          <p className="si-ack" data-testid="credits-art-ack">
+            {pictures.length - notSi.length} of the {pictures.length} pictures and {sounds.length === 1 ? "the 1 sound" : `all ${sounds.length} sounds`} in the game were made with SI (AI) tools,
+            and each SI picture shows an "SI-generated" label where it appears.
+            {notSi.length > 0 && <> The {notSi.length === 1 ? "only picture" : `${notSi.length} pictures`} not made with SI {notSi.length === 1 ? "is" : "are"} real NASA photo{notSi.length === 1 ? "" : "s"}: {notSi.map(c => c.title).join("; ")}.</>}
+          </p>
+          <h3>Pictures</h3>
+          <ul>{pictures.map(row)}</ul>
+          {sounds.length > 0 && <><h3>Sounds</h3><ul>{sounds.map(row)}</ul></>}
+        </div>
       ) : <p data-testid="credits-assets">Placeholder shapes and sounds for now, all made by the team.</p>}
 
       <h2 data-testid="credits-si-heading">Made with help from AI</h2>
@@ -112,7 +127,9 @@ export function Credits({ onClose, onDatasets, team = readTeam(teamJson), credit
         </details>
       </div>
 
-      <button className="primary" data-testid="credits-close" onClick={onClose}>Back</button>
+      {onClose
+        ? <button className="primary" data-testid="credits-close" onClick={onClose}>Back</button>
+        : <a className="primary button-link" data-testid="credits-close" href="./">Back to CraterQuest</a>}
     </section>
   );
 }

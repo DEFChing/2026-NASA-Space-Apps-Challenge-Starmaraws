@@ -13,8 +13,8 @@ import { Art } from "./Art";
 export const INTRO_PANELS = [
   { key: "story_intro_1", who: "", line: "“You’ve been chosen for the Junior Astronaut Academy.”", alt: "An acceptance letter from the Junior Astronaut Academy", ph: "letter" },
   { key: "story_intro_2", who: "Flight Director Amara", line: "“Out there, every choice costs something. In here, you can practise until you’re ready.”", alt: "The simulation room, with Flight Director Amara", ph: "room" },
-  { key: "story_intro_3", who: "Flight Director Amara", line: "“Four months on the Moon. Real NASA data, even real solar storms.”", alt: "Amara handing over the simulation mask", ph: "mask" },
-  { key: "story_intro_4", who: "", line: "You put on the mask…", alt: "The cadet putting the mask on", ph: "cadet" },
+  { key: "story_intro_3", who: "Flight Director Amara", line: "“Four months on the Moon. Real NASA data, even real solar storms.”", alt: "The simulation mask, ready for you", ph: "mask" },
+  { key: "story_intro_4", who: "", line: "You put on the mask…", alt: "Through the mask: the simulation is loading", ph: "cadet" },
 ] as const;
 
 export function Intro({ onDone }: { onDone: () => void }) {

@@ -1,4 +1,4 @@
-// SI disclosure: the assetFiles plugin lines were added with assistance from Claude
+// SI disclosure: the assetFiles plugin and two-page input lines were added with assistance from Claude
 // (Anthropic), a large language model, then reviewed and tested by the Junior Astronaut
 // team. The rest of this file comes from the Phaser React template. See AI_USAGE.md.
 
@@ -32,6 +32,8 @@ export default defineConfig({
     logLevel: 'warning',
     build: {
         rollupOptions: {
+            // Two pages: the game, and the credits page linked from its main menu.
+            input: { main: 'index.html', credits: 'credits.html' },
             output: {
                 manualChunks: {
                     phaser: ['phaser']
