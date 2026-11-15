@@ -40,22 +40,32 @@ export function GameScreen() {
   const storm = ctx.weather[turn].storm;
   const card = ctx.cards[state.deck[turn]];
   const lastRecord = g.history[g.history.length - 1];
+  // While the outpost animates a turn, the HUD keeps showing the state before it,
+  // so the bars change after the kids have seen why.
+  const hud = g.hudState ?? state;
+  const hudTurn = g.hudState ? g.hudState.turn : phase === "over" ? ctx.level.turns : turn;
 
   return (
     <div className="overlay">
       <header className="hud">
         <div className="hud-left">
           {BARS.map(r => (
-            <ResourceBar key={r} res={r} value={state.res[r]} max={ctx.level.max[r]} emergency={state.emergencies.includes(r)} />
+            <ResourceBar key={r} res={r} value={hud.res[r]} max={ctx.level.max[r]} emergency={hud.emergencies.includes(r)} />
           ))}
-          <div className="stars" data-testid="stars">Stars: {state.stars} of {ctx.level.starTarget}</div>
-          <TurnTracker ctx={ctx} turn={phase === "over" ? ctx.level.turns : turn} />
+          <div className="stars" data-testid="stars">Stars: {hud.stars} of {ctx.level.starTarget}</div>
+          <TurnTracker ctx={ctx} turn={hudTurn} />
         </div>
-        <RadiationBadge pips={state.badge} limit={ctx.level.radiation.limit} />
+        <RadiationBadge pips={hud.badge} limit={ctx.level.radiation.limit} />
       </header>
 
       <main className="stage">
-        {phase === "briefing" && (
+        {g.animating && (
+          <button className="skip" data-testid="skip-anim" onClick={g.skipAnimations} aria-label="Speed up the animation">
+            Skip ▸
+          </button>
+        )}
+
+        {!g.animating && phase === "briefing" && (
           <section className="briefing" aria-label="Morning briefing">
             <h2 data-testid="turn-label">{turnLabel(ctx, turn)}</h2>
             <Forecast odds={nextForecast(ctx, turn)} />
@@ -77,11 +87,11 @@ export function GameScreen() {
           <CardView card={card} choices={g.choices} specialist={g.specialist} onChoose={c => void g.choose(c)} />
         )}
 
-        {phase === "report" && lastRecord && (
+        {!g.animating && phase === "report" && lastRecord && (
           <TurnReport record={lastRecord} ctx={ctx} busy={g.busy} onNext={g.nextTurn} />
         )}
 
-        {phase === "over" && g.seed !== null && (
+        {!g.animating && phase === "over" && g.seed !== null && (
           <Debrief history={g.history} ctx={ctx} seed={g.seed} specialist={g.specialist}
             difficulty={g.difficulty} onAgain={g.playAgain} />
         )}

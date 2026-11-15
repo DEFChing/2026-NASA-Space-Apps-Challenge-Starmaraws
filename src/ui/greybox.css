@@ -104,3 +104,11 @@
 @media (prefers-reduced-motion: reduce) {
   .bar-fill { transition: none; } .bar-empty .bar-status { animation: none; }
 }
+
+/* Step 5: while the outpost animates, only a small skip button shows. */
+.overlay button.skip { position: absolute; right: 16px; bottom: 16px; opacity: 0.8; text-align: center; }
+.asset-debug { position: fixed; right: 8px; bottom: 8px; width: 330px; max-height: 70vh; overflow: auto; z-index: 50;
+  background: rgba(8, 10, 18, 0.95); border: 1px solid var(--line); border-radius: 10px; padding: 10px; font: 12px/1.4 monospace; color: var(--text); }
+.asset-debug h2 { font: bold 13px Arial; margin: 0 0 6px; }
+.asset-debug .real { color: var(--green); } .asset-debug .ph { color: var(--low); } .asset-debug .half { color: var(--yellow); }
+.asset-debug table { width: 100%; border-collapse: collapse; } .asset-debug td { padding: 1px 4px; }

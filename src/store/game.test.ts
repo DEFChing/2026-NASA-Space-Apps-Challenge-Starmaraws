@@ -2,13 +2,13 @@
  * SI disclosure: written with assistance from Claude (Anthropic), a large language
  * model, then reviewed, edited and tested by the Junior Astronaut team. See AI_USAGE.md.
  */
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { startRun } from "../engine/data";
 import { smarterDraw } from "../engine/draw";
 import { findSeed, isWinnable } from "../engine/solver";
 import type { GameState, Res } from "../engine/types";
 import { buildDebrief } from "../ui/text";
-import { setChecker, setEmitter, useGame } from "./game";
+import { ANIMATION_TIMEOUT_MS, setChecker, setEmitter, useGame } from "./game";
 
 const SLOW = 60_000;
 const initial = useGame.getState();
@@ -147,4 +147,89 @@ describe("smarter draw", () => {
 test("the first-run tip can be dismissed", () => {
   g().dismissTip();
   expect(g().firstRun).toBe(false);
+});
+
+describe("waiting for the outpost scene", () => {
+  afterEach(() => { vi.useRealTimers(); });
+
+  function toCard() {
+    g().start("doctor", 1003);
+    g().toSplit(); g().setSlot("greenhouse", 1); g().lockSplit();
+  }
+
+  test("with the scene ready, the report waits for animations-done", async () => {
+    g().setSceneReady(true);
+    toCard();
+    await g().choose(1);
+    expect(g().phase).toBe("report");
+    expect(g().animating).toBe(true);
+    g().nextTurn();
+    expect(g().phase).toBe("report");             // can't move on mid-animation
+    g().animationsDone();
+    expect(g().animating).toBe(false);
+    g().nextTurn();
+    expect(g().phase).toBe("briefing");
+  });
+
+  test("the HUD keeps the state before the turn until the animation ends", async () => {
+    g().setSceneReady(true);
+    toCard();
+    const before = g().state!;
+    await g().choose(1);
+    expect(g().hudState).toBe(before);
+    expect(g().state).not.toBe(before);
+    g().animationsDone();
+    expect(g().hudState).toBeNull();
+  });
+
+  test("the turn payload gives the scene what it needs", async () => {
+    g().setSceneReady(true);
+    toCard();
+    await g().choose(1);
+    const p = emitted.filter(e => e.name === "turn-resolved").pop()!.payload as Record<string, unknown>;
+    expect(p).toMatchObject({ turn: 0, cardId: "B0", cardTitle: "Building the base", isDay: true, nextIsDay: false });
+    expect(p.plan).toEqual({ heater: 0, greenhouse: 1, experiments: 0, shelter: false });
+  });
+
+  test("if the scene never answers, the game moves on after the timeout", async () => {
+    vi.useFakeTimers();
+    g().setSceneReady(true);
+    toCard();
+    await g().choose(1);
+    expect(g().animating).toBe(true);
+    vi.advanceTimersByTime(ANIMATION_TIMEOUT_MS + 1);
+    expect(g().animating).toBe(false);
+  });
+
+  test("without a scene (tests, or Phaser failed), nothing waits", async () => {
+    toCard();
+    await g().choose(1);
+    expect(g().animating).toBe(false);
+  });
+
+  test("skip only asks the scene to hurry while it's animating", async () => {
+    g().skipAnimations();
+    expect(emitted.some(e => e.name === "skip-animations")).toBe(false);
+    g().setSceneReady(true);
+    toCard();
+    await g().choose(1);
+    g().skipAnimations();
+    expect(emitted.some(e => e.name === "skip-animations")).toBe(true);
+  });
+
+  test("a scene that appears mid-run is told about the run", () => {
+    g().start("doctor", 1003);
+    emitted.length = 0;
+    g().setSceneReady(true);
+    expect(emitted[0]).toMatchObject({ name: "run-started", payload: { specialist: "doctor", isDay: true } });
+  });
+
+  test("interface sounds: card reveal, locked option, option select", async () => {
+    g().start("doctor", 1003);
+    g().toSplit(); g().setSlot("experiments", 6); g().lockSplit();
+    await g().choose(0);                            // locked: bury needs 3
+    await g().choose(1);
+    const sounds = emitted.filter(e => e.name === "sfx").map(e => e.payload);
+    expect(sounds).toEqual(expect.arrayContaining(["sfx_card_reveal", "sfx_locked", "sfx_option_select"]));
+  });
 });

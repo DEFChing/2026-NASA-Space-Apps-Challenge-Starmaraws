@@ -11,7 +11,7 @@
 import { create } from "zustand";
 import { startRun } from "../engine/data";
 import type { Swap } from "../engine/draw";
-import { choicesFor, planCost, planProblem, resolveTurn, type ChoiceInfo } from "../engine/rules";
+import { choicesFor, isDayTurn, planCost, planProblem, resolveTurn, type ChoiceInfo } from "../engine/rules";
 import type { Analysis, Difficulty } from "../engine/solver";
 import type { Choice, Ctx, DailyPlan, GameEvent, GameState, Res, Specialist } from "../engine/types";
 import type { TurnRecord } from "../ui/text";
@@ -33,7 +33,8 @@ export function setChecker(c: Checker | null) { checker = c; }
 const getChecker = () => (checker ??= createChecker());
 
 /** Phaser listens here (App wires it to the EventBus). */
-type Emit = (name: "turn-resolved" | "run-started", payload: unknown) => void;
+export type EmitName = "turn-resolved" | "run-started" | "sfx" | "phase" | "skip-animations";
+type Emit = (name: EmitName, payload?: unknown) => void;
 let emit: Emit = () => {};
 export function setEmitter(fn: Emit) { emit = fn; }
 
@@ -43,6 +44,10 @@ function readFirstRun(): boolean {
 }
 
 const emptyPlan = (): DailyPlan => ({ heater: 0, greenhouse: 0, experiments: 0, shelter: false });
+
+/** If the scene never reports back (an error, a closed tab), stop waiting after this long. */
+export const ANIMATION_TIMEOUT_MS = 25_000;
+let animationTimer: ReturnType<typeof setTimeout> | undefined;
 
 export interface GameStore {
   phase: Phase;
@@ -57,6 +62,9 @@ export interface GameStore {
   lastSwapTurn: number | null;      // smarter draw: turn of the last swap
   swaps: { turn: number; cardId: string; replaced: string }[];
   busy: boolean;                    // the worker is thinking (smarter draw)
+  animating: boolean;               // the outpost scene is playing this turn's consequences
+  hudState: GameState | null;       // while animating: the state before the turn, so the HUD doesn't spoil it
+  sceneReady: boolean;              // the Phaser scene is listening
   error: string | null;             // shown to the player as is
   firstRun: boolean;
 
@@ -70,6 +78,9 @@ export interface GameStore {
   nextTurn(): void;                                  // report → briefing
   playAgain(sameSeed: boolean): void;
   dismissTip(): void;
+  setSceneReady(ready: boolean): void;
+  animationsDone(): void;
+  skipAnimations(): void;
 }
 
 export const useGame = create<GameStore>()((set, get) => ({
@@ -78,6 +89,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   specialist: null, seed: null, ctx: null, state: null,
   plan: emptyPlan(), choices: [], history: [],
   lastSwapTurn: null, swaps: [], busy: false, error: null,
+  animating: false, hudState: null, sceneReady: false,
   firstRun: readFirstRun(),
 
   setDifficulty: (difficulty) => set({ difficulty }),
@@ -98,8 +110,10 @@ export const useGame = create<GameStore>()((set, get) => ({
     set({
       phase: "briefing", specialist, seed, state, ctx,
       plan: emptyPlan(), choices: [], history: [], lastSwapTurn: null, swaps: [], busy: false, error: null,
+      animating: false, hudState: null,
     });
-    emit("run-started", { seed, specialist });
+    emit("run-started", { seed, specialist, state, isDay: isDayTurn(ctx.level, 0) });
+    emit("sfx", "sfx_forecast");
   },
 
   toSplit(shelter = false) {
@@ -107,52 +121,86 @@ export const useGame = create<GameStore>()((set, get) => ({
     if (phase !== "briefing" || !state || !ctx) return;
     const storm = ctx.weather[state.turn].storm;
     set({ phase: "split", plan: { ...emptyPlan(), shelter: storm && shelter }, error: null });
+    emit("sfx", "sfx_click");
   },
 
   setSlot(slot, cells) {
     if (get().phase !== "split") return;
-    set({ plan: { ...get().plan, [slot]: Math.max(0, Math.floor(cells)) }, error: null });
+    const next = Math.max(0, Math.floor(cells));
+    emit("sfx", next > get().plan[slot] ? "sfx_cell_snap" : "sfx_cell_pick");
+    set({ plan: { ...get().plan, [slot]: next }, error: null });
   },
 
   lockSplit() {
     const { phase, state, ctx, plan } = get();
     if (phase !== "split" || !state || !ctx) return;
     const problem = planProblem(state, ctx, plan);
-    if (problem) { set({ error: problem }); return; }
+    if (problem) { set({ error: problem }); emit("sfx", "sfx_locked"); return; }
     set({ phase: "card", choices: choicesFor(state, ctx, plan), error: null });
+    emit("sfx", "sfx_card_reveal");
   },
 
   async choose(choice) {
     const { phase, state, ctx, plan, choices, history } = get();
     if (phase !== "card" || !state || !ctx) return;
     const info = choices.find(c => c.choice === choice);
-    if (!info?.affordable) return;
+    if (!info?.affordable) { if (info) emit("sfx", "sfx_locked"); return; }
+    emit("sfx", "sfx_option_select");
     const { state: after, events } = resolveTurn(state, ctx, plan, choice);
     const spare = state.res.power - planCost(state, ctx.level, plan);
     const record: TurnRecord = {
       turn: state.turn, cardId: state.deck[state.turn], plan, choice, events, after,
       locked: choices.filter(c => !c.affordable).map(c => ({ choice: c.choice, label: c.option.label, cost: c.cost, spare })),
     };
-    set({ state: after, history: [...history, record], phase: after.status === "playing" ? "report" : "over", choices: [] });
-    emit("turn-resolved", { turn: record.turn, events, state: after });
+    const animating = get().sceneReady;
+    set({ state: after, history: [...history, record], phase: after.status === "playing" ? "report" : "over", choices: [], animating, hudState: animating ? state : null });
+    if (animating) {
+      clearTimeout(animationTimer);
+      animationTimer = setTimeout(() => get().animationsDone(), ANIMATION_TIMEOUT_MS);
+    }
+    const t = record.turn;
+    emit("turn-resolved", {
+      turn: t, events, state: after, cardId: record.cardId, cardTitle: ctx.cards[record.cardId].title, plan,
+      isDay: isDayTurn(ctx.level, t), nextIsDay: t + 1 < ctx.level.turns ? isDayTurn(ctx.level, t + 1) : null,
+    });
     if (after.status === "playing") await tryHelp(after, events);
   },
 
   nextTurn() {
-    const { phase, busy } = get();
-    if (phase !== "report" || busy) return;
+    const { phase, busy, animating } = get();
+    if (phase !== "report" || busy || animating) return;
     set({ phase: "briefing", plan: emptyPlan(), error: null });
+    emit("sfx", "sfx_forecast");
   },
 
   playAgain(sameSeed) {
     const { specialist, seed } = get();
     if (sameSeed && specialist && seed !== null) get().start(specialist, seed);
-    else set({ phase: "crewPick", state: null, ctx: null, history: [], seed: null, error: null });
+    else {
+      set({ phase: "crewPick", state: null, ctx: null, history: [], seed: null, error: null, animating: false, hudState: null });
+      emit("phase", "crewPick");
+    }
   },
 
   dismissTip() {
     try { localStorage.setItem(TIP_KEY, "1"); } catch { /* private mode: fine */ }
     set({ firstRun: false });
+  },
+
+  setSceneReady(ready) {
+    set({ sceneReady: ready });
+    const { state, specialist, ctx } = get();
+    // A run started before the scene existed (e.g. a dev seed link): show it now.
+    if (ready && state && specialist && ctx) emit("run-started", { seed: state.seed, specialist, state, isDay: isDayTurn(ctx.level, Math.min(state.turn, ctx.level.turns - 1)) });
+  },
+
+  animationsDone() {
+    clearTimeout(animationTimer);
+    if (get().animating) set({ animating: false, hudState: null });
+  },
+
+  skipAnimations() {
+    if (get().animating) emit("skip-animations");
   },
 }));
 

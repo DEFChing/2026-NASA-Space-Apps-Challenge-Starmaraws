@@ -1,46 +1,373 @@
 [
-  {"path": "AI_USAGE.md", "type": "doc", "tool": "Claude (Anthropic)", "how": "Drafted the SI usage summary", "humanReviewed": true},
-  {"path": "vitest.config.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Wrote the test runner configuration", "humanReviewed": true},
-  {"path": "src/engine/smoke.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Wrote a starter test that confirms the test runner works", "humanReviewed": true},
-  {"path": "scripts/check-si.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Wrote the CI script that checks SI disclosure", "humanReviewed": true},
-  {"path": "scripts/check-cards.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Wrote the card checker that runs the truth rules on src/data/cards.json in CI", "humanReviewed": true},
-  {"path": ".github/workflows/ci.yml", "type": "code", "tool": "Claude (Anthropic)", "how": "Wrote the CI workflow (tests, card check, SI check)", "humanReviewed": true},
-  {"path": ".github/workflows/deploy.yml", "type": "code", "tool": "Claude (Anthropic)", "how": "Wrote the GitHub Pages deploy workflow", "humanReviewed": true},
-  {"path": "src/engine/types.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the Moon engine's shared types (cards, power split, state, events)", "humanReviewed": true},
-  {"path": "src/engine/rng.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the seeded random generator, shuffle and separate seed streams", "humanReviewed": true},
-  {"path": "src/engine/rules.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted turn resolution (power split, card option, sunlight, upkeep, storm, delayed effects, checks) and the fast state copy", "humanReviewed": true},
-  {"path": "src/engine/run.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted run setup: opener and Day/Night pile deal, placeholder storm track, gamble rolls", "humanReviewed": true},
-  {"path": "src/engine/content.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the level and card file loaders and their shape checks", "humanReviewed": true},
-  {"path": "src/engine/rules.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the engine tests", "humanReviewed": true},
-  {"path": "src/data/moon.level.json", "type": "data", "tool": "Claude (Anthropic)", "how": "Drafted first-pass Moon level numbers from the Game Design Spec v2", "humanReviewed": true},
-  {"path": "src/engine/cardRules.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the card-writing (truth) rules as code", "humanReviewed": true},
-  {"path": "src/engine/data.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the loader that checks the level and cards at start-up, and startRun", "humanReviewed": true},
-  {"path": "src/engine/cards.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the card tests", "humanReviewed": true},
-  {"path": "src/data/cards.json", "type": "data", "tool": "Claude (Anthropic)", "how": "Drafted the 18 cards' text and first-pass numbers from the Game Design Spec v2 and the cited sources", "humanReviewed": true},
-  {"path": "src/engine/solver.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run checker: winnable search, random-player win share, difficulty bands, seed finder", "humanReviewed": true},
-  {"path": "src/engine/draw.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the smarter draw (swap a helpful reserve card in when a bar is low)", "humanReviewed": true},
-  {"path": "src/engine/solver.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run checker and smarter draw tests", "humanReviewed": true},
-  {"path": "src/workers/checkerProtocol.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run-checker worker's messages and handler", "humanReviewed": true},
-  {"path": "src/workers/checker.worker.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run-checker Web Worker", "humanReviewed": true},
-  {"path": "src/workers/checkerClient.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the promise-based client the store uses to talk to the worker", "humanReviewed": true},
-  {"path": "src/store/game.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the game store: turn phases, seed check, smarter draw, history", "humanReviewed": true},
-  {"path": "src/store/game.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the store tests", "humanReviewed": true},
-  {"path": "src/ui/text.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the gameplay text helpers: card costs, turn report, debrief", "humanReviewed": true},
-  {"path": "src/ui/text.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the text helper tests", "humanReviewed": true},
-  {"path": "src/ui/GameScreen.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox overlay that shows each phase", "humanReviewed": true},
-  {"path": "src/ui/ResourceBar.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox resource bar", "humanReviewed": true},
-  {"path": "src/ui/RadiationBadge.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox Radiation Badge", "humanReviewed": true},
-  {"path": "src/ui/TurnTracker.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox turn tracker", "humanReviewed": true},
-  {"path": "src/ui/Forecast.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox forecast line", "humanReviewed": true},
-  {"path": "src/ui/StormAlert.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox storm alert card", "humanReviewed": true},
-  {"path": "src/ui/PowerSplit.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox power split with the spare-cells counter and storm nudge", "humanReviewed": true},
-  {"path": "src/ui/CardView.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox event card with locked-option reasons", "humanReviewed": true},
-  {"path": "src/ui/TurnReport.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox turn report", "humanReviewed": true},
-  {"path": "src/ui/Debrief.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox debrief", "humanReviewed": true},
-  {"path": "src/ui/CrewPick.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox difficulty and crew pick", "humanReviewed": true},
-  {"path": "src/ui/FirstRunTip.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the first-run tip", "humanReviewed": true},
-  {"path": "src/ui/greybox.css", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the greybox styles", "humanReviewed": true},
-  {"path": "src/App.tsx", "type": "code", "tool": "Claude (Anthropic)", "how": "Rewrote the app shell: Phaser canvas with the React overlay", "humanReviewed": true},
-  {"path": "src/game/main.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Rewrote the Phaser setup as a full-window canvas", "humanReviewed": true},
-  {"path": "src/game/scenes/Outpost.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the placeholder outpost scene", "humanReviewed": true}
+  {
+    "path": "AI_USAGE.md",
+    "type": "doc",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the SI usage summary",
+    "humanReviewed": true
+  },
+  {
+    "path": "vitest.config.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Wrote the test runner configuration",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/smoke.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Wrote a starter test that confirms the test runner works",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/check-si.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Wrote the CI script that checks SI disclosure",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/check-cards.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Wrote the card checker that runs the truth rules on src/data/cards.json in CI",
+    "humanReviewed": true
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Wrote the CI workflow (tests, card check, SI check)",
+    "humanReviewed": true
+  },
+  {
+    "path": ".github/workflows/deploy.yml",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Wrote the GitHub Pages deploy workflow",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/types.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the Moon engine's shared types (cards, power split, state, events)",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/rng.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the seeded random generator, shuffle and separate seed streams",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/rules.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted turn resolution (power split, card option, sunlight, upkeep, storm, delayed effects, checks) and the fast state copy",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/run.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted run setup: opener and Day/Night pile deal, placeholder storm track, gamble rolls",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/content.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the level and card file loaders and their shape checks",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/rules.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the engine tests",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/data/moon.level.json",
+    "type": "data",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted first-pass Moon level numbers from the Game Design Spec v2",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/cardRules.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the card-writing (truth) rules as code",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/data.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the loader that checks the level and cards at start-up, and startRun",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/cards.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the card tests",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/data/cards.json",
+    "type": "data",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the 18 cards' text and first-pass numbers from the Game Design Spec v2 and the cited sources",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/solver.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the run checker: winnable search, random-player win share, difficulty bands, seed finder",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/draw.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the smarter draw (swap a helpful reserve card in when a bar is low)",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/solver.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the run checker and smarter draw tests",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/workers/checkerProtocol.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the run-checker worker's messages and handler",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/workers/checker.worker.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the run-checker Web Worker",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/workers/checkerClient.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the promise-based client the store uses to talk to the worker",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/store/game.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the game store: turn phases, seed check, smarter draw, history",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/store/game.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the store tests",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/text.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the gameplay text helpers: card costs, turn report, debrief",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/text.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the text helper tests",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/GameScreen.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox overlay that shows each phase",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/ResourceBar.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox resource bar",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/RadiationBadge.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox Radiation Badge",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/TurnTracker.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox turn tracker",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Forecast.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox forecast line",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/StormAlert.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox storm alert card",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/PowerSplit.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox power split with the spare-cells counter and storm nudge",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/CardView.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox event card with locked-option reasons",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/TurnReport.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox turn report",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Debrief.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox debrief",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/CrewPick.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox difficulty and crew pick",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/FirstRunTip.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the first-run tip",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/greybox.css",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the greybox styles",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/App.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Rewrote the app shell: Phaser canvas with the React overlay",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/game/main.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Rewrote the Phaser setup as a full-window canvas",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/game/scenes/Outpost.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Built the outpost scene: placeholder visuals, turn animations, card moments, sound hooks",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/game/assets.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the art and audio manifest that matches the asset guide",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/game/scenes/Boot.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the loader that uses delivered files and draws placeholders for the rest",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/game/animations/plan.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the planner that turns engine events into animation steps",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/game/animations/plan.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for the animation planner and the asset manifest",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/game/virtual-assets.d.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the type declaration for the asset-file list",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/AssetDebug.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the ?debugAssets panel that shows which assets have arrived",
+    "humanReviewed": true
+  },
+  {
+    "path": "vite/assetFiles.mjs",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the Vite plugin that lists delivered art and audio files",
+    "humanReviewed": true
+  },
+  {
+    "path": "vite/config.dev.mjs",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Added the asset-file plugin to the dev config",
+    "humanReviewed": true
+  },
+  {
+    "path": "vite/config.prod.mjs",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Added the asset-file plugin to the production config",
+    "humanReviewed": true
+  }
 ]
