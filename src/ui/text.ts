@@ -241,7 +241,8 @@ export function buildDebrief(history: TurnRecord[], ctx: Ctx): Debrief {
   if (s.status === "won") {
     const fromCards = new Map<string, number>();
     for (const { e } of all) if (e.type === "stars" && ctx.cards[e.cause]) fromCards.set(e.cause, (fromCards.get(e.cause) ?? 0) + e.amount);
-    const best = [...fromCards].sort((a, b) => b[1] - a[1])[0];
+    // Only a card that earned Stars can be "your best card"; one that cost a Star isn't.
+    const best = [...fromCards].filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1])[0];
     const science = all.reduce((n, { e }) => n + (e.type === "stars" && e.cause === "experiments" ? e.amount : 0), 0);
     return {
       headline: "Mission complete!",

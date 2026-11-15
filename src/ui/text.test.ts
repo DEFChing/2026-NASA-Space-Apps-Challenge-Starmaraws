@@ -85,3 +85,19 @@ describe("turn report and debrief", () => {
     expect(d.chain.length).toBeGreaterThan(0);
   });
 });
+
+describe("the win debrief's best card", () => {
+  test("a card that only cost Stars is never called the best card", async () => {
+    const { buildDebrief } = await import("./text");
+    const { state, ctx } = startRun(1003, "botanist");
+    const card = state.deck[1];
+    const won = { ...state, status: "won" as const, stars: 8 };
+    const rec = (events: Parameters<typeof buildDebrief>[0][number]["events"]) => [{ turn: 1, cardId: card, plan: { heater: 0, greenhouse: 0, experiments: 0, shelter: false }, choice: 0 as const, events, after: won, locked: [] }];
+    const lost = buildDebrief(rec([{ type: "stars", amount: -1, cause: card }, { type: "stars", amount: 9, cause: "experiments" }]), ctx);
+    expect(lost.chain.join(" ")).not.toMatch(/best card/);
+    expect(lost.keyCard).toBeNull();
+    const gained = buildDebrief(rec([{ type: "stars", amount: 2, cause: card }]), ctx);
+    expect(gained.chain.join(" ")).toMatch(/Your best card/);
+    expect(gained.keyCard!.id).toBe(card);
+  });
+});

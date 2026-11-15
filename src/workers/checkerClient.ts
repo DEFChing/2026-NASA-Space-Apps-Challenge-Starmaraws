@@ -57,6 +57,11 @@ export function createChecker() {
       const r = await ask<"analyse">({ kind: "analyse", state });
       return r.kind === "analyse" ? r.result : null;
     },
+    /** Can this seed be won (and how forgiving is it)? For mission codes typed in by hand. */
+    async checkSeed(specialist: Specialist, seed: number): Promise<Analysis | null> {
+      const r = await ask<"checkSeed">({ kind: "checkSeed", specialist, seed });
+      return r.kind === "checkSeed" ? r.result : null;
+    },
     /** After a warning on `res`: a better next card, or null. */
     async smarterDraw(state: GameState, res: Res, lastSwapTurn: number | null): Promise<Swap | null> {
       const r = await ask<"smarterDraw">({ kind: "smarterDraw", state, res, lastSwapTurn });

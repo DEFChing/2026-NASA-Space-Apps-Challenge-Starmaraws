@@ -25,6 +25,10 @@ function App() {
     EventBus.on("animations-done", onDone);
     // The scene may have announced itself before this listener existed: ask again.
     EventBus.emit("scene-ping");
+    // ?code=MOON-E7Q4K2X starts that mission (a link a teacher or judge can share). The
+    // checker still checks it first, like a code typed on the title screen.
+    const shared = new URLSearchParams(location.search).get("code");
+    if (shared) void useGame.getState().startCode(shared);
     // Dev only: ?seed=1003&crew=botanist jumps straight into that run (playtests, demo rehearsal).
     // The published game ignores it, so players only ever get checked seeds.
     if (import.meta.env.DEV) {

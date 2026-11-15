@@ -467,5 +467,110 @@
     "tool": "Claude (Anthropic)",
     "how": "Computed from the NASA DONKI archive by scripts/build-forecast.ts; no number written by hand",
     "humanReviewed": true
+  },
+  {
+    "path": "src/engine/codes.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted mission codes with a check character that catches typos",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/codes.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for mission codes (round trips, every one-character typo, swaps)",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/story.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted how a run's ending is classed and which mentor line it gets",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/story.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for endings and mentor lines",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/progress.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted what the game remembers between visits (intro seen, runs, recent lines)",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/artFiles.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the lookup for delivered art in React screens",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Art.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the picture-or-placeholder component",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Title.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the title screen with Play, the code box and Datasets",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Intro.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the four-panel intro from the Game Design Spec",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Landing.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the landing panel before Turn 1",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Cutscene.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the mask cutscene from the Game Design Spec",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/screens.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted render tests for the story screens",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/__fixtures__/assetFiles.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the test stand-in for the delivered-file list",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/data/dialogue.json",
+    "type": "data",
+    "tool": "Claude (Anthropic)",
+    "how": "Mentor lines from the Game Design Spec v2, kept word for word except one unit added",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/filenames.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted a test that catches file names differing only by case",
+    "humanReviewed": true
   }
 ]

@@ -85,7 +85,7 @@ export class Outpost extends Scene {
     const onTurn = (p: TurnPayload) => void this.playTurn(p);
     const onSkip = () => this.setSpeed(6);
     const onSfx = (key: string) => this.sfx(key);
-    const onPhase = (phase: string) => { if (phase === "crewPick") this.playMusic("music_title"); };
+    const onPhase = (phase: string) => { if (phase === "crewPick" || phase === "title") this.playMusic("music_title"); };
     EventBus.on("run-started", onRun);
     EventBus.on("turn-resolved", onTurn);
     EventBus.on("skip-animations", onSkip);
@@ -350,10 +350,17 @@ export class Outpost extends Scene {
   // --- steps -------------------------------------------------------------------------
 
   private async shelter() {
+    const crew = [this.crew.ana, this.crew.spec];
+    if (this.props.cave.alpha > 0) {
+      // With the cave found (D4), the crew shelters in the cave mouth: no Power needed.
+      const { x, y } = this.props.cave;
+      await Promise.all(crew.map((c, i) => c ? this.walkTo(c, x - 30 + i * 40, y) : Promise.resolve()));
+      return;
+    }
     this.sfx("sfx_shelter_door");
     this.setFrame(this.modules.stormroom.img, 1);
     const sr = this.modules.stormroom;
-    await Promise.all([this.crew.ana, this.crew.spec].map((c, i) => c ? this.walkTo(c, sr.x + 70 + i * 70, sr.y + MOD_H - 6) : Promise.resolve()));
+    await Promise.all(crew.map((c, i) => c ? this.walkTo(c, sr.x + 70 + i * 70, sr.y + MOD_H - 6) : Promise.resolve()));
   }
 
   private async flowCells(plan: DailyPlan, isDay: boolean) {

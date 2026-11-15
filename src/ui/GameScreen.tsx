@@ -10,13 +10,17 @@ import type { Res } from "../engine/types";
 import { useGame } from "../store/game";
 import { CardView } from "./CardView";
 import { CrewPick } from "./CrewPick";
+import { Cutscene } from "./Cutscene";
 import { Debrief } from "./Debrief";
 import { FirstRunTip } from "./FirstRunTip";
 import { Forecast } from "./Forecast";
+import { Intro } from "./Intro";
+import { Landing } from "./Landing";
 import { PowerSplit } from "./PowerSplit";
 import { RadiationBadge } from "./RadiationBadge";
 import { ResourceBar } from "./ResourceBar";
 import { StormAlert } from "./StormAlert";
+import { Title } from "./Title";
 import { TurnReport } from "./TurnReport";
 import { TurnTracker } from "./TurnTracker";
 import { nextForecast, turnLabel } from "./text";
@@ -27,13 +31,25 @@ export function GameScreen() {
   const g = useGame();
   const { phase, state, ctx } = g;
 
+  if (phase === "title") {
+    return (
+      <div className="overlay center">
+        <Title error={g.error} onPlay={g.play} onCode={c => void g.startCode(c)} onIntro={g.watchIntro} />
+      </div>
+    );
+  }
+  if (phase === "intro") return <div className="overlay center story-layer"><Intro onDone={g.finishIntro} /></div>;
   if (phase === "crewPick" || phase === "checking" || !state || !ctx || !g.specialist) {
     return (
       <div className="overlay center">
         <CrewPick difficulty={g.difficulty} checking={phase === "checking"} error={g.error}
-          onDifficulty={g.setDifficulty} onPick={s => void g.pickCrew(s)} />
+          onDifficulty={g.setDifficulty} onPick={s => void g.pickCrew(s)} onBack={g.toTitle} />
       </div>
     );
+  }
+  if (g.landing && phase === "briefing") return <div className="overlay center story-layer"><Landing specialist={g.specialist} onDone={g.land} /></div>;
+  if (phase === "over" && !g.animating && !g.debriefOpen && g.ending) {
+    return <div className="overlay center story-layer"><Cutscene ending={g.ending} onDebrief={g.openDebrief} /></div>;
   }
 
   const turn = Math.min(state.turn, ctx.level.turns - 1);
@@ -93,7 +109,7 @@ export function GameScreen() {
 
         {!g.animating && phase === "over" && g.seed !== null && (
           <Debrief history={g.history} ctx={ctx} seed={g.seed} specialist={g.specialist}
-            difficulty={g.difficulty} onAgain={g.playAgain} />
+            difficulty={g.difficulty} onAgain={g.playAgain} onTitle={g.toTitle} />
         )}
       </main>
     </div>

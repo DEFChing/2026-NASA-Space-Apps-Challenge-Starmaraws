@@ -16,6 +16,7 @@ export default defineConfig({
     alias: [
       { find: /^\.\.\/data\/donki\.json$/, replacement: fixture("donki-empty.json") },
       { find: /^\.\.\/data\/forecast-odds\.json$/, replacement: fixture("forecast-odds-empty.json") },
+      { find: /^virtual:asset-files$/, replacement: fixture("assetFiles.ts") },
     ],
   },
 });

@@ -3,27 +3,33 @@
  * model, then reviewed, edited and tested by the Junior Astronaut team. See AI_USAGE.md.
  */
 
-// The game store. One turn runs as a set of phases:
-//   crewPick → checking (the worker finds a fair seed) → briefing (forecast, storm alert)
-//   → split (power cells) → card (revealed after the split) → report → briefing … → over
+// The game store. A visit and a run go through these phases:
+//   title → intro (first visit only) → crewPick → checking (the worker finds a fair seed)
+//   → briefing (forecast, storm alert) → split (power cells) → card (revealed after the
+//   split) → report → briefing … → over (mask cutscene, then the debrief)
+// A mission code skips the intro and the crew pick: title → checking → briefing.
 // React reads it with useGame(); Phaser hears about each turn through the emitter.
 
 import { create } from "zustand";
+import { decode } from "../engine/codes";
 import { startRun } from "../engine/data";
 import type { Swap } from "../engine/draw";
 import { choicesFor, isDayTurn, planCost, planProblem, resolveTurn, type ChoiceInfo } from "../engine/rules";
 import type { Analysis, Difficulty } from "../engine/solver";
 import type { Choice, Ctx, DailyPlan, GameEvent, GameState, Res, Specialist } from "../engine/types";
+import { markIntroSeen, readProgress, recordRun } from "../ui/progress";
+import { endingFor, type Ending } from "../ui/story";
 import type { TurnRecord } from "../ui/text";
 import { createChecker, randomSeed } from "../workers/checkerClient";
 
-export type Phase = "crewPick" | "checking" | "briefing" | "split" | "card" | "report" | "over";
+export type Phase = "title" | "intro" | "crewPick" | "checking" | "briefing" | "split" | "card" | "report" | "over";
 export type Slot = "heater" | "greenhouse" | "experiments";
 
 /** What the store needs from the run checker (the worker in the game, the solver in tests). */
 export interface Checker {
   findSeed(specialist: Specialist, difficulty: Difficulty, startSeed?: number):
     Promise<{ seed: number; analysis: Analysis; tried: number } | null>;
+  checkSeed(specialist: Specialist, seed: number): Promise<Analysis | null>;
   smarterDraw(state: GameState, res: Res, lastSwapTurn: number | null): Promise<Swap | null>;
 }
 
@@ -37,10 +43,12 @@ export type EmitName = "turn-resolved" | "run-started" | "sfx" | "phase" | "skip
 type Emit = (name: EmitName, payload?: unknown) => void;
 let emit: Emit = () => {};
 export function setEmitter(fn: Emit) { emit = fn; }
+/** Story screens play their sounds through the outpost scene too. */
+export const playSfx = (key: string) => emit("sfx", key);
 
 const TIP_KEY = "jamt.seenFirstTip";
 function readFirstRun(): boolean {
-  try { return typeof localStorage === "undefined" || localStorage.getItem(TIP_KEY) !== "1"; } catch { return true; }
+  try { return typeof window === "undefined" || window.localStorage.getItem(TIP_KEY) !== "1"; } catch { return true; }
 }
 
 const emptyPlan = (): DailyPlan => ({ heater: 0, greenhouse: 0, experiments: 0, shelter: false });
@@ -67,10 +75,20 @@ export interface GameStore {
   sceneReady: boolean;              // the Phaser scene is listening
   error: string | null;             // shown to the player as is
   firstRun: boolean;
+  landing: boolean;                 // show the landing panel before Turn 1 (after a crew pick or a code)
+  ending: Ending | null;            // the mentor line for the mask cutscene, once the run is over
+  debriefOpen: boolean;             // the cutscene has been dismissed
 
+  play(): void;                                      // title → intro (first visit) or crew pick
+  finishIntro(): void;                               // intro → crew pick, and remember it was seen
+  watchIntro(): void;                                // title → intro, on request
+  toTitle(): void;
+  startCode(code: string): Promise<void>;            // title → checking → briefing, from a mission code
+  land(): void;                                      // dismiss the landing panel
+  openDebrief(): void;                               // cutscene → debrief
   setDifficulty(d: Difficulty): void;
   pickCrew(specialist: Specialist): Promise<void>;   // crew pick → checking → briefing
-  start(specialist: Specialist, seed: number): void; // a checked seed (or a seed code, Step 7)
+  start(specialist: Specialist, seed: number): void; // a checked seed (from the crew pick or a code)
   toSplit(shelter?: boolean): void;                  // briefing → split, with the storm answer
   setSlot(slot: Slot, cells: number): void;
   lockSplit(): void;                                 // split → card: reveal the card
@@ -84,13 +102,54 @@ export interface GameStore {
 }
 
 export const useGame = create<GameStore>()((set, get) => ({
-  phase: "crewPick",
+  phase: "title",
   difficulty: "rookie",
   specialist: null, seed: null, ctx: null, state: null,
   plan: emptyPlan(), choices: [], history: [],
   lastSwapTurn: null, swaps: [], busy: false, error: null,
   animating: false, hudState: null, sceneReady: false,
   firstRun: readFirstRun(),
+  landing: false, ending: null, debriefOpen: false,
+
+  play() {
+    set({ phase: readProgress().introSeen ? "crewPick" : "intro", error: null });
+    emit("sfx", "sfx_click");
+  },
+
+  finishIntro() {
+    markIntroSeen();
+    if (get().phase === "intro") set({ phase: "crewPick" });
+  },
+
+  watchIntro() { if (get().phase === "title") set({ phase: "intro", error: null }); },
+
+  toTitle() {
+    set({ phase: "title", state: null, ctx: null, history: [], seed: null, error: null, animating: false, hudState: null, landing: false, ending: null, debriefOpen: false });
+    emit("phase", "title");
+  },
+
+  async startCode(code) {
+    if (get().phase === "checking") return;   // already checking one (e.g. a ?code= link seen twice)
+    const d = decode(code);
+    if (!d.ok) { set({ error: d.why }); return; }
+    set({ phase: "checking", specialist: d.specialist, error: null });
+    try {
+      const analysis = await getChecker().checkSeed(d.specialist, d.seed);
+      if (!analysis?.winnable || !analysis.difficulty) {
+        set({ phase: "title", error: "Mission control couldn't check that mission. Check the code with whoever shared it." });
+        return;
+      }
+      set({ difficulty: analysis.difficulty });
+      get().start(d.specialist, d.seed);
+      set({ landing: true });
+    } catch (err) {
+      set({ phase: "title", error: `The mission checker had a problem: ${(err as Error).message}` });
+    }
+  },
+
+  land() { if (get().landing) set({ landing: false }); },
+
+  openDebrief() { if (get().phase === "over" && !get().debriefOpen) set({ debriefOpen: true }); },
 
   setDifficulty: (difficulty) => set({ difficulty }),
 
@@ -100,6 +159,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       const found = await getChecker().findSeed(specialist, get().difficulty, randomSeed());
       if (!found) { set({ phase: "crewPick", error: "Couldn't find a fair mission. Try again!" }); return; }
       get().start(specialist, found.seed);
+      set({ landing: true });
     } catch (err) {
       set({ phase: "crewPick", error: `The mission checker had a problem: ${(err as Error).message}` });
     }
@@ -110,7 +170,7 @@ export const useGame = create<GameStore>()((set, get) => ({
     set({
       phase: "briefing", specialist, seed, state, ctx,
       plan: emptyPlan(), choices: [], history: [], lastSwapTurn: null, swaps: [], busy: false, error: null,
-      animating: false, hudState: null,
+      animating: false, hudState: null, landing: false, ending: null, debriefOpen: false,
     });
     emit("run-started", { seed, specialist, state, isDay: isDayTurn(ctx.level, 0) });
     emit("sfx", "sfx_forecast");
@@ -153,7 +213,15 @@ export const useGame = create<GameStore>()((set, get) => ({
       locked: choices.filter(c => !c.affordable).map(c => ({ choice: c.choice, label: c.option.label, cost: c.cost, spare })),
     };
     const animating = get().sceneReady;
-    set({ state: after, history: [...history, record], phase: after.status === "playing" ? "report" : "over", choices: [], animating, hudState: animating ? state : null });
+    const playing = after.status === "playing";
+    let ending: Ending | null = null;
+    if (!playing) {
+      // Pick Amara's line now, so the cutscene and the saved "recent lines" agree.
+      const progress = readProgress();
+      ending = endingFor([...history, record], ctx, progress.runs, progress.recentLines);
+      recordRun(ending.id);
+    }
+    set({ state: after, history: [...history, record], phase: playing ? "report" : "over", choices: [], animating, hudState: animating ? state : null, ending });
     if (animating) {
       clearTimeout(animationTimer);
       animationTimer = setTimeout(() => get().animationsDone(), ANIMATION_TIMEOUT_MS);
@@ -177,13 +245,13 @@ export const useGame = create<GameStore>()((set, get) => ({
     const { specialist, seed } = get();
     if (sameSeed && specialist && seed !== null) get().start(specialist, seed);
     else {
-      set({ phase: "crewPick", state: null, ctx: null, history: [], seed: null, error: null, animating: false, hudState: null });
+      set({ phase: "crewPick", state: null, ctx: null, history: [], seed: null, error: null, animating: false, hudState: null, landing: false, ending: null, debriefOpen: false });
       emit("phase", "crewPick");
     }
   },
 
   dismissTip() {
-    try { localStorage.setItem(TIP_KEY, "1"); } catch { /* private mode: fine */ }
+    try { if (typeof window !== "undefined") window.localStorage.setItem(TIP_KEY, "1"); } catch { /* private mode: fine */ }
     set({ firstRun: false });
   },
 

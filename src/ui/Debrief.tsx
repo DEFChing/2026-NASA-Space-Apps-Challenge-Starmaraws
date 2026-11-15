@@ -2,6 +2,8 @@
  * SI disclosure: written with assistance from Claude (Anthropic), a large language
  * model, then reviewed, edited and tested by the Junior Astronaut team. See AI_USAGE.md.
  */
+import { useState } from "react";
+import { encode } from "../engine/codes";
 import { moonFacts } from "../engine/data";
 import { pickFact, type Fact, type FactTag } from "../engine/facts";
 import type { Difficulty } from "../engine/solver";
@@ -19,11 +21,17 @@ export function factTagsFor(end: GameState): FactTag[] {
 interface Props {
   history: TurnRecord[]; ctx: Ctx; seed: number; specialist: Specialist; difficulty: Difficulty;
   onAgain: (sameSeed: boolean) => void;
+  onTitle?: () => void;
   facts?: Fact[];
 }
 
 /** Win or lose, the cause chain, a locked-option hint, one fact and the seed. Step 7 adds the mask cutscene first. */
-export function Debrief({ history, ctx, seed, specialist, difficulty, onAgain, facts = moonFacts }: Props) {
+export function Debrief({ history, ctx, seed, specialist, difficulty, onAgain, onTitle, facts = moonFacts }: Props) {
+  const code = encode(specialist, seed);
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(code); setCopied(true); } catch { setCopied(false); }
+  };
   const d = buildDebrief(history, ctx);
   const end = history[history.length - 1].after;
   const won = end.status === "won";
@@ -55,10 +63,17 @@ export function Debrief({ history, ctx, seed, specialist, difficulty, onAgain, f
           Your storms were real: this mission used NASA's space weather records from {formatDate(ctx.weatherStart)} to {formatDate(weatherEnd)}.
         </p>
       )}
-      <p className="seed" data-testid="seed">Seed {seed} · {CREW[specialist].name} the {CREW[specialist].role} · {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</p>
+      <div className="mission-code">
+        <span>Mission code</span>
+        <code data-testid="mission-code">{code}</code>
+        <button data-testid="copy-code" onClick={() => void copy()}>{copied ? "Copied!" : "Copy"}</button>
+        <small>Share it: a friend who types it in on the title screen plays this exact mission.</small>
+      </div>
+      <p className="seed" data-testid="seed">{CREW[specialist].name} the {CREW[specialist].role} · {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} · seed {seed}</p>
       <div className="choices">
         <button className="primary" data-testid="again-same" onClick={() => onAgain(true)}>Try this mission again</button>
         <button data-testid="again-new" onClick={() => onAgain(false)}>New mission</button>
+        {onTitle && <button data-testid="to-title" onClick={onTitle}>Title screen</button>}
       </div>
     </section>
   );

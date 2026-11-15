@@ -5,8 +5,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { startRun } from "../engine/data";
 import { smarterDraw } from "../engine/draw";
-import { findSeed, isWinnable } from "../engine/solver";
+import { encode } from "../engine/codes";
+import { analyse, findSeed, isWinnable, QUICK_LIMIT } from "../engine/solver";
 import type { GameState, Res } from "../engine/types";
+import { readProgress, resetProgress } from "../ui/progress";
 import { buildDebrief } from "../ui/text";
 import { ANIMATION_TIMEOUT_MS, setChecker, setEmitter, useGame } from "./game";
 
@@ -18,9 +20,11 @@ const emitted: { name: string; payload: unknown }[] = [];
 beforeEach(() => {
   useGame.setState(initial, true);
   drawCalls.length = 0; emitted.length = 0;
+  resetProgress();
   // The real solver, without a worker; seeds always searched from 1000 so tests repeat.
   setChecker({
     findSeed: async (sp, difficulty) => findSeed(startRun, sp, difficulty, 1000),
+    checkSeed: async (sp, seed) => { const { state, ctx } = startRun(seed, sp); return analyse(state, ctx, 1000, QUICK_LIMIT); },
     smarterDraw: async (state, res, last) => {
       drawCalls.push({ turn: state.turn, res });
       return smarterDraw(state, startRun(state.seed, state.specialist).ctx, res, last, 200);
@@ -105,6 +109,9 @@ describe("whole runs", () => {
     expect(g().state!.status).toBe("won");
     expect(g().history).toHaveLength(8);
     expect(buildDebrief(g().history, g().ctx!).headline).toBe("Mission complete!");
+    expect(g().ending).toMatchObject({ outcome: expect.stringMatching(/^win_(clean|close)$/), mood: "smile" });
+    expect(g().ending!.text).not.toMatch(/\{/);
+    expect(readProgress()).toMatchObject({ runs: 1, recentLines: [g().ending!.id] });
   }, SLOW);
 
   test("never using the greenhouse runs out of food, and the debrief says what ran out", async () => {
@@ -121,6 +128,10 @@ describe("whole runs", () => {
     expect(g().state!.status).toBe("lost");
     const d = buildDebrief(g().history, g().ctx!);
     expect(d.headline).toMatch(/Mission over: \w+ ran out|badge filled|science/);
+    expect(g().ending).toMatchObject({ outcome: "first_run", mood: "thoughtful" });   // nobody passes their first sim
+    expect(g().debriefOpen).toBe(false);
+    g().openDebrief();
+    expect(g().debriefOpen).toBe(true);
   }, SLOW);
 });
 
@@ -231,5 +242,57 @@ describe("waiting for the outpost scene", () => {
     await g().choose(1);
     const sounds = emitted.filter(e => e.name === "sfx").map(e => e.payload);
     expect(sounds).toEqual(expect.arrayContaining(["sfx_card_reveal", "sfx_locked", "sfx_option_select"]));
+  });
+});
+
+describe("title, intro, codes and endings", () => {
+  test("the game opens on the title; the intro plays on the first visit only", () => {
+    expect(g().phase).toBe("title");
+    g().play();
+    expect(g().phase).toBe("intro");
+    g().finishIntro();
+    expect(g().phase).toBe("crewPick");
+    expect(readProgress().introSeen).toBe(true);
+    g().toTitle();
+    g().play();
+    expect(g().phase).toBe("crewPick");
+  });
+
+  test("a crew pick shows the landing panel first; trying the same mission again doesn't", async () => {
+    await g().pickCrew("doctor");
+    expect(g().phase).toBe("briefing");
+    expect(g().landing).toBe(true);
+    g().land();
+    expect(g().landing).toBe(false);
+    g().playAgain(true);
+    expect(g().landing).toBe(false);
+  }, SLOW);
+
+  test("a mission code starts that crew and seed, checked first, at its difficulty", async () => {
+    const found = findSeed(startRun, "engineer", "pilot", 1000)!;
+    await g().startCode(encode("engineer", found.seed).toLowerCase());
+    expect(g()).toMatchObject({ phase: "briefing", specialist: "engineer", seed: found.seed, difficulty: "pilot", landing: true, error: null });
+  }, SLOW);
+
+  test("a code with a typo is caught before anything starts", async () => {
+    const code = encode("botanist", 1003);
+    await g().startCode(code.slice(0, -1) + (code.endsWith("2") ? "3" : "2"));
+    expect(g().phase).toBe("title");
+    expect(g().error).toMatch(/typo/);
+  });
+
+  test("a valid code for a mission the checker can't win is refused", async () => {
+    // Seed 1092 can only be won with the doctor (solver tests), so the engineer's version is refused.
+    expect(isWinnable(startRun(1092, "engineer").state, startRun(1092, "engineer").ctx).winnable).toBe(false);
+    await g().startCode(encode("engineer", 1092));
+    expect(g().phase).toBe("title");
+    expect(g().error).toMatch(/couldn't check that mission/);
+  }, SLOW);
+
+  test("going back to the title clears the run", async () => {
+    g().start("doctor", 1003);
+    g().toTitle();
+    expect(g()).toMatchObject({ phase: "title", state: null, seed: null, ending: null, debriefOpen: false });
+    expect(emitted.some(e => e.name === "phase" && e.payload === "title")).toBe(true);
   });
 });

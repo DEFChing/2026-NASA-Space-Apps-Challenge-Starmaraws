@@ -1,0 +1,52 @@
+{
+  "_meta": {
+    "si": {
+      "generated": true,
+      "tool": "Claude (Anthropic)",
+      "how": "Mentor lines from the Game Design Spec v2 (written with Claude, reviewed by the team); one line given a unit (minus 130 °C)",
+      "humanReviewed": true
+    }
+  },
+  "dialogue": [
+    { "outcome": "first_run", "lines": [
+      "Nobody passes their first sim. Not even me.",
+      "Welcome back, cadet. That was the hard part: starting.",
+      "First sims are for finding out what you don't know yet."
+    ] },
+    { "outcome": "win_clean", "lines": [
+      "Textbook. Mission planners would frame that run.",
+      "You made those trade-offs look easy, and they aren't.",
+      "Plan ahead, then adapt. That's how real crews do it."
+    ] },
+    { "outcome": "win_close", "lines": [
+      "You made it, but {resource} was almost gone. Real missions keep a safety margin.",
+      "That emergency on turn {turn} was scary. What would you do differently?",
+      "A win is a win. Next time, finish with something to spare."
+    ] },
+    { "outcome": "safe_no_stars", "lines": [
+      "Everyone's safe, and that matters most. But the science didn't get done.",
+      "Safe AND useful, that's the real target.",
+      "Sometimes a mission needs a little risk to do its science."
+    ] },
+    { "outcome": "lost_power", "lines": [
+      "The batteries ran dry on turn {turn}. Power only comes from the Sun, so saving it is the only way to have more later.",
+      "Every system wanted power at once. Which one could have waited?",
+      "{card} drained more than it looked."
+    ] },
+    { "outcome": "lost_warmth", "lines": [
+      "Lunar nights last two weeks. Power you save by day is heat you'll need at night.",
+      "The cold won on turn {turn}. Would burying the habitat have helped?",
+      "At minus 130 °C, every bit of insulation counts."
+    ] },
+    { "outcome": "lost_food", "lines": [
+      "Nobody's bringing groceries. The greenhouse is your lifeline.",
+      "Plants need time. Planting earlier would have helped.",
+      "{card} cost more food than it looked."
+    ] },
+    { "outcome": "lost_badge", "lines": [
+      "Your badge filled up, so the crew is going home early. That's a real rule: astronauts who reach their limit stop flying.",
+      "Shelters cost time, but they save your career.",
+      "The forecast warned you on turn {turn}. Were there cells left for the shelter?"
+    ] }
+  ]
+}
