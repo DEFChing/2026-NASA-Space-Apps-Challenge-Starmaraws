@@ -1,0 +1,10 @@
+{
+  "_meta": {
+    "si": {
+      "generated": false,
+      "how": "Rows written by the assets team in incoming/credits.csv and copied here by scripts/import-credits.ts; the si column marks any SI-made file",
+      "humanReviewed": true
+    }
+  },
+  "credits": []
+}

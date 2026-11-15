@@ -369,5 +369,103 @@
     "tool": "Claude (Anthropic)",
     "how": "Added the asset-file plugin to the production config",
     "humanReviewed": true
+  },
+  {
+    "path": "src/engine/donki.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the DONKI record clean-up (near-Earth storms, M/X flares, fast CMEs)",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/weather.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted real-weather runs from the DONKI archive and the odds measurement",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/forecast.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the measured forecast-odds file format and checks",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/facts.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the facts and credits formats, checks and CSV import",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/weather.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for the DONKI clean-up, real weather and measured odds",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/facts.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for facts, credits, real-data text and the Datasets page",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/engine/__fixtures__/donkiRaw.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted test records shaped like real DONKI responses",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/ui/Datasets.tsx",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the Datasets page built from the data files",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/fetch-donki.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the DONKI download script",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/fetch-donki.test.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted tests for the download script with a fake network",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/build-forecast.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the script that measures forecast odds from the archive",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/check-weather.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the script that reports how the archive plays",
+    "humanReviewed": true
+  },
+  {
+    "path": "scripts/import-credits.ts",
+    "type": "code",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the script that copies incoming/credits.csv into credits.json",
+    "humanReviewed": true
+  },
+  {
+    "path": "src/data/forecast-odds.json",
+    "type": "data",
+    "tool": "Claude (Anthropic)",
+    "how": "Computed from the NASA DONKI archive by scripts/build-forecast.ts; no number written by hand",
+    "humanReviewed": false
   }
 ]

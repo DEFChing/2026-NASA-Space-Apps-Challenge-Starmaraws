@@ -112,3 +112,13 @@
 .asset-debug h2 { font: bold 13px Arial; margin: 0 0 6px; }
 .asset-debug .real { color: var(--green); } .asset-debug .ph { color: var(--low); } .asset-debug .half { color: var(--yellow); }
 .asset-debug table { width: 100%; border-collapse: collapse; } .asset-debug td { padding: 1px 4px; }
+
+/* Step 6: real-data labels and the Datasets page */
+.real-data { font-size: 0.9rem; opacity: 0.9; }
+.real-data small { display: block; opacity: 0.75; margin-top: 0.25rem; }
+.real-data a, .fact a, .datasets a { color: #8fd3ff; }
+.datasets { max-width: 820px; max-height: 88vh; overflow-y: auto; text-align: left; }
+.datasets h2 { margin-top: 1.2rem; font-size: 1.1rem; }
+.datasets table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.datasets th, .datasets td { border-bottom: 1px solid #ffffff22; padding: 0.3rem 0.4rem; text-align: left; vertical-align: top; }
+button.link { background: none; border: none; color: #8fd3ff; text-decoration: underline; cursor: pointer; margin-top: 0.8rem; }

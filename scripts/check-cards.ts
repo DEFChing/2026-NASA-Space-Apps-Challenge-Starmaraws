@@ -41,3 +41,28 @@ console.log(`check-cards: ${cards.length} cards OK`);
 console.log(`  piles: opener ${count(c => c.pile === "opener")}, day ${count(c => c.pile === "day")}, night ${count(c => c.pile === "night")}`);
 console.log(`  specialist options: ${who}`);
 console.log(`  gambles: ${gambles.join(", ")}`);
+
+// The other hand-written data: facts, credits, and the forecast odds against the archive.
+import("../src/engine/facts").then(async ({ checkFacts, checkCredits }) => {
+  const { loadArchive } = await import("../src/engine/donki");
+  const { loadForecastOdds } = await import("../src/engine/forecast");
+  const read = (f: string) => JSON.parse(readFileSync(f, "utf8"));
+  const facts = checkFacts(read("src/data/facts.json"));
+  const credits = checkCredits(read("src/data/credits.json"));
+  const more = [...facts.problems, ...credits.problems];
+  try {
+    const archive = loadArchive(read("src/data/donki.json"));
+    const odds = loadForecastOdds(read("src/data/forecast-odds.json"));
+    if (archive && JSON.stringify(odds.archive) !== JSON.stringify(archive.range)) {
+      more.push("src/data/forecast-odds.json wasn't measured from src/data/donki.json: run npm run build-forecast");
+    }
+    if (!archive && odds.tiers) more.push("src/data/forecast-odds.json has measured odds but src/data/donki.json is empty");
+    console.log(`  data: ${facts.facts.length} facts, ${credits.credits.length} credits, DONKI archive ${archive ? `${archive.range!.start} to ${archive.range!.end}` : "not downloaded yet (practice weather)"}`);
+  } catch (err) {
+    more.push((err as Error).message);
+  }
+  if (more.length) {
+    console.error(`check-cards: ${more.length} data problem(s)\n- ${more.join("\n- ")}`);
+    process.exit(1);
+  }
+});

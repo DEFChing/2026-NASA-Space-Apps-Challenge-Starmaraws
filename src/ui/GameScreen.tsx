@@ -71,7 +71,7 @@ export function GameScreen() {
             <Forecast odds={nextForecast(ctx, turn)} />
             {g.firstRun && turn === 0 && <FirstRunTip onDismiss={g.dismissTip} />}
             {storm
-              ? <StormAlert shelterCells={shelterCost(state, ctx.level)} onAnswer={s => g.toSplit(s)} />
+              ? <StormAlert shelterCells={shelterCost(state, ctx.level)} date={ctx.weather[turn].date} link={ctx.weather[turn].link} onAnswer={s => g.toSplit(s)} />
               : <button className="primary" data-testid="start-day" onClick={() => g.toSplit(false)}>Plan the day</button>}
           </section>
         )}

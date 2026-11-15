@@ -30,7 +30,10 @@
     "test:watch": "vitest",
     "check-cards": "tsx scripts/check-cards.ts",
     "check-si": "tsx scripts/check-si.ts",
-    "fetch-donki": "tsx scripts/fetch-donki.ts"
+    "fetch-donki": "tsx scripts/fetch-donki.ts",
+    "buildforecast": "tsx scripts/build-forecast.ts",
+    "check-weather": "tsx\nscripts/check-weather.ts",
+    "import-credits": "tsx scripts/importcredits.ts"
   },
   "dependencies": {
     "phaser": "^4.2.1",

@@ -10,7 +10,8 @@ import { makeRolls, mulberry32, shuffle, STREAM, streamSeed } from "./rng";
 import type { Card, Ctx, GameState, LevelConfig, Odds, Specialist, WeatherTurn } from "./types";
 
 /**
- * Placeholder forecast odds until Step 6 measures real ones from the DONKI archive.
+ * Placeholder forecast odds, used until the DONKI archive has been downloaded and
+ * scripts/build-forecast.ts has measured real ones (src/data/forecast-odds.json).
  * `chance` is the chance of a storm; `label` is what the briefing says.
  */
 export const PLACEHOLDER_ODDS: Record<Odds, { chance: number; label: string; share: number }> = {
@@ -20,8 +21,8 @@ export const PLACEHOLDER_ODDS: Record<Odds, { chance: number; label: string; sha
 };
 
 /**
- * Seeded stand-in for the DONKI storm track: each turn gets a forecast tier, then a
- * storm with that tier's chance. Step 6 replaces this with real 14-day windows.
+ * Practice weather, used until the DONKI archive has been downloaded: each turn gets a
+ * forecast tier, then a storm with that tier's chance. Real runs use weather.ts.
  */
 export function placeholderWeather(seed: number, turns: number): WeatherTurn[] {
   const rand = mulberry32(streamSeed(seed, STREAM.weather));
@@ -57,7 +58,8 @@ export interface RunInput {
   cards: Card[];
   seed: number;
   specialist: Specialist;
-  weather?: WeatherTurn[];          // real DONKI track (Step 6); default: seeded placeholder
+  weather?: WeatherTurn[];          // real DONKI track; default: seeded placeholder
+  weatherStart?: string;            // first day of that DONKI window
 }
 
 export function newRun(input: RunInput): { state: GameState; ctx: Ctx } {
@@ -79,5 +81,5 @@ export function newRun(input: RunInput): { state: GameState; ctx: Ctx } {
     status: "playing",
   };
   const cards = Object.fromEntries(input.cards.map(c => [c.id, c]));
-  return { state, ctx: { level, cards, weather } };
+  return { state, ctx: { level, cards, weather, ...(input.weatherStart ? { weatherStart: input.weatherStart } : {}) } };
 }

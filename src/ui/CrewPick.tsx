@@ -2,9 +2,14 @@
  * SI disclosure: written with assistance from Claude (Anthropic), a large language
  * model, then reviewed, edited and tested by the Junior Astronaut team. See AI_USAGE.md.
  */
+import { useState } from "react";
 import type { Difficulty } from "../engine/solver";
 import type { Specialist } from "../engine/types";
+import { Datasets } from "./Datasets";
 import { COMMANDER, CREW } from "./text";
+
+// ?datasets opens the Datasets page straight away (a link for judges and teachers).
+const openDatasets = () => typeof location !== "undefined" && new URLSearchParams(location.search).has("datasets");
 
 interface Props {
   difficulty: Difficulty; checking: boolean; error: string | null;
@@ -20,6 +25,8 @@ const LEVELS: { id: Difficulty; label: string; help: string }[] = [
 
 /** Pick a difficulty, then one specialist for the whole run. Step 7 adds portraits. */
 export function CrewPick({ difficulty, checking, error, onDifficulty, onPick }: Props) {
+  const [datasets, setDatasets] = useState(openDatasets);
+  if (datasets && !checking) return <Datasets onClose={() => setDatasets(false)} />;
   if (checking) {
     return (
       <section className="panel" aria-live="polite" data-testid="checking">
@@ -49,6 +56,7 @@ export function CrewPick({ difficulty, checking, error, onDifficulty, onPick }: 
         ))}
       </div>
       {error && <p className="error" role="alert">{error}</p>}
+      <button className="link" data-testid="open-datasets" onClick={() => setDatasets(true)}>Where our data comes from</button>
     </section>
   );
 }

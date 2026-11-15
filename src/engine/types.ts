@@ -88,7 +88,8 @@ export type Odds = "low" | "medium" | "high";
 export interface WeatherTurn {
   storm: boolean;              // a solar particle storm hits this turn
   forecast: Odds;              // what the briefing said the turn before
-  date?: string;               // "This storm really happened on [date]" (Step 6)
+  date?: string;               // "This storm really happened on [date]" (real DONKI weather only)
+  link?: string;               // the DONKI record for that storm
 }
 
 /** The day's plan: Power cells per slot. Locked before the card is revealed. */
@@ -124,6 +125,7 @@ export interface Ctx {
   level: LevelConfig;
   cards: Record<string, Card>;
   weather: WeatherTurn[];      // one entry per turn
+  weatherStart?: string;       // first real day of the run's DONKI window (real weather only)
 }
 
 export type StarsBlockedWhy = "shelter" | "strained";

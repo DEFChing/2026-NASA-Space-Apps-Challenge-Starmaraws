@@ -5,7 +5,7 @@
 import { isDayTurn, planCost, shelterCost } from "../engine/rules";
 import type { Ctx, DailyPlan, GameState } from "../engine/types";
 import type { Slot } from "../store/game";
-import { nextForecast } from "./text";
+import { nextForecast, worthSheltering } from "./text";
 
 interface Props {
   state: GameState; ctx: Ctx; plan: DailyPlan; error: string | null;
@@ -19,7 +19,7 @@ export function PowerSplit({ state, ctx, plan, error, onSlot, onLock }: Props) {
   const day = isDayTurn(level, state.turn);
   const spare = state.res.power - planCost(state, level, plan);
   const next = nextForecast(ctx, state.turn);
-  const nudge = next !== null && next !== "low" && !state.flags.includes("cave") && shelterCost(state, level) > 0;
+  const nudge = worthSheltering(next) && !state.flags.includes("cave") && shelterCost(state, level) > 0;
   const step = level.slots.experiments.cellsPerStar;
   const insulated = state.flags.includes("buried") || state.flags.includes("sandbagged");
 

@@ -8,7 +8,7 @@
 // engine applies, so what a kid reads always matches what happens.
 
 import { kidOdds } from "../engine/cardRules";
-import { PLACEHOLDER_ODDS } from "../engine/run";
+import { oddsInfo } from "../engine/data";
 import { badgeColour, isDayTurn } from "../engine/rules";
 import type {
   Card, Choice, Ctx, DailyPlan, Effect, Flag, GameEvent, GameState, LostBy, Odds, Option, Res, Specialist,
@@ -64,10 +64,24 @@ export function describeOption(o: Option): string {
   return [main || (o.gamble ? "Nothing now" : ""), risk].filter(Boolean).join(" · ");
 }
 
-/** "1 in 3 chance of a radiation storm next turn" */
+/** "1 in 3 chance of a radiation storm next turn" (measured from DONKI once the archive is in). */
 export function forecastText(odds: Odds): string {
-  return `${PLACEHOLDER_ODDS[odds].label} chance of a radiation storm next turn`;
+  return `${oddsInfo(odds).label} chance of a radiation storm next turn`;
 }
+
+/** The Spec's storm nudge shows when the forecast says 1 in 3 or higher. */
+export const worthSheltering = (odds: Odds | null) => odds !== null && oddsInfo(odds).chance >= 1 / 3 - 1e-9;
+
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** "2026-01-18" → "18 January 2026" (no locale needed, so it reads the same everywhere). */
+export function formatDate(day: string): string {
+  const [y, m, d] = day.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+}
+
+/** "This storm really happened on 18 January 2026." */
+export const realStormLine = (day: string) => `This storm really happened on ${formatDate(day)}.`;
 
 /** The forecast shown in the briefing on turn t is for turn t + 1. */
 export function nextForecast(ctx: Ctx, t: number): Odds | null {
@@ -143,9 +157,9 @@ export function reportLines(rec: TurnRecord, ctx: Ctx): string[] {
           : "No Stars from experiments: the crew is strained because a bar was low.");
         break;
       case "storm":
-        lines.push(e.sheltered
+        lines.push((e.sheltered
           ? `A solar storm hit! The crew sheltered: +${e.pips} ${plural(e.pips, "pip")}.`
-          : `A solar storm hit while the crew kept working: +${e.pips} pips.`);
+          : `A solar storm hit while the crew kept working: +${e.pips} pips.`) + (e.date ? ` ${realStormLine(e.date)}` : ""));
         break;
       case "warning":
         lines.push(`${RES_LABEL[e.res]} is low (${rec.after.res[e.res]}). Experiments won't earn Stars while a bar is at 2 or below.`);
