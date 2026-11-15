@@ -296,6 +296,21 @@ function checkLimits(s: GameState, level: LevelConfig, T: Turn) {
   if (s.badge >= level.radiation.limit) lose("badge");  // no emergency turn for a dose
 }
 
+/**
+ * A fast copy of a state for resolveTurn (structuredClone is several times slower,
+ * and the run checker copies states hundreds of thousands of times). Effects, cards
+ * and rolls are never changed in place, so they can be shared.
+ */
+export function cloneState(s: GameState): GameState {
+  return {
+    ...s,
+    res: { ...s.res },
+    pending: s.pending.slice(), mods: s.mods.slice(), flags: s.flags.slice(),
+    emergencies: s.emergencies.slice(), usedEmergency: s.usedEmergency.slice(),
+    deck: s.deck.slice(), reserve: { day: s.reserve.day.slice(), night: s.reserve.night.slice() },
+  };
+}
+
 export interface TurnMode { gambles: "roll" | "fail" }
 
 /**
@@ -307,7 +322,7 @@ export function resolveTurn(
   mode: TurnMode = { gambles: "roll" },
 ): { state: GameState; events: GameEvent[] } {
   if (s0.status !== "playing") throw new Error("This run is already over");
-  const s = structuredClone(s0);
+  const s = cloneState(s0);
   const level = ctx.level;
   const t = s.turn;
   const T: Turn = { t, last: level.turns - 1, day: isDayTurn(level, t), strained: isStrained(s0), ev: [] };

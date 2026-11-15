@@ -8,13 +8,19 @@
   {"path": ".github/workflows/deploy.yml", "type": "code", "tool": "Claude (Anthropic)", "how": "Wrote the GitHub Pages deploy workflow", "humanReviewed": true},
   {"path": "src/engine/types.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the Moon engine's shared types (cards, power split, state, events)", "humanReviewed": true},
   {"path": "src/engine/rng.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the seeded random generator, shuffle and separate seed streams", "humanReviewed": true},
-  {"path": "src/engine/rules.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted turn resolution: power split, card option, sunlight, upkeep, storm, delayed effects and checks", "humanReviewed": true},
+  {"path": "src/engine/rules.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted turn resolution (power split, card option, sunlight, upkeep, storm, delayed effects, checks) and the fast state copy", "humanReviewed": true},
   {"path": "src/engine/run.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted run setup: opener and Day/Night pile deal, placeholder storm track, gamble rolls", "humanReviewed": true},
   {"path": "src/engine/content.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the level and card file loaders and their shape checks", "humanReviewed": true},
   {"path": "src/engine/rules.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the engine tests", "humanReviewed": true},
   {"path": "src/data/moon.level.json", "type": "data", "tool": "Claude (Anthropic)", "how": "Drafted first-pass Moon level numbers from the Game Design Spec v2", "humanReviewed": true},
   {"path": "src/engine/cardRules.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the card-writing (truth) rules as code", "humanReviewed": true},
-  {"path": "src/engine/data.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the loader that checks the level and cards at start-up", "humanReviewed": true},
+  {"path": "src/engine/data.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the loader that checks the level and cards at start-up, and startRun", "humanReviewed": true},
   {"path": "src/engine/cards.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the card tests", "humanReviewed": true},
-  {"path": "src/data/cards.json", "type": "data", "tool": "Claude (Anthropic)", "how": "Drafted the 18 cards' text and first-pass numbers from the Game Design Spec v2 and the cited sources", "humanReviewed": true}
+  {"path": "src/data/cards.json", "type": "data", "tool": "Claude (Anthropic)", "how": "Drafted the 18 cards' text and first-pass numbers from the Game Design Spec v2 and the cited sources", "humanReviewed": true},
+  {"path": "src/engine/solver.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run checker: winnable search, random-player win share, difficulty bands, seed finder", "humanReviewed": true},
+  {"path": "src/engine/draw.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the smarter draw (swap a helpful reserve card in when a bar is low)", "humanReviewed": true},
+  {"path": "src/engine/solver.test.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run checker and smarter draw tests", "humanReviewed": true},
+  {"path": "src/workers/checkerProtocol.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run-checker worker's messages and handler", "humanReviewed": true},
+  {"path": "src/workers/checker.worker.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the run-checker Web Worker", "humanReviewed": true},
+  {"path": "src/workers/checkerClient.ts", "type": "code", "tool": "Claude (Anthropic)", "how": "Drafted the promise-based client the store uses to talk to the worker", "humanReviewed": true}
 ]
