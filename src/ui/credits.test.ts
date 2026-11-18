@@ -29,7 +29,7 @@ describe("credits screen", () => {
 
   test("the credits page has the team with roles, the art acknowledgement, and the data sources", () => {
     const h = html(CreditsPage, {});
-    for (const [name, role] of [["Jon Rian Añonuevo", "Documentation and Asset Collection"], ["Daniel Emile Ching", "Lead Developer and Designer"], ["Michael Udarbe Jr.", "Co-Designer"]])
+    for (const [name, role] of [["Jon Rian Añonuevo", "Documentation, Assets, and Co-Designer"], ["Daniel Emile Ching", "Lead Developer and Designer"], ["Michael Udarbe Jr.", "Co-Designer"]])
       expect(h).toContain(`<strong>${name}</strong> · ${role}`);
     expect(h).toContain('data-testid="credits-art-ack"');
     expect(h).toContain("real NASA photos");
