@@ -466,7 +466,7 @@
     "type": "data",
     "tool": "Claude (Anthropic)",
     "how": "Computed from the NASA DONKI archive by scripts/build-forecast.ts; no number written by hand",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/engine/codes.ts",
@@ -578,91 +578,91 @@
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the settings store that applies large text, reduce motion and sound levels",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/SettingsPanel.tsx",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the settings dialog (volumes, mute, reduce motion, large text) and its button",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/NewWord.tsx",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the one-time plain-word explanations for new terms",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/access.test.ts",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted tests for settings, keyboard play, status icons and new-word hints",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/Credits.tsx",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the Credits screen, including the \"Made with help from AI\" section built from si-manifest.json",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/credits.test.ts",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted tests for the Credits screen",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "scripts/check-demo.ts",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the check that the demo mission codes still give the rehearsed runs",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "scripts/scan-seeds.ts",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the seed scan used to retune difficulty bands and pick demo codes",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "DEMO.md",
     "type": "doc",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the demo sheet; the codes were picked by the run checker from real-data seeds",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/cellDrag.ts",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the rules for dragging power cells between slots",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/MiniMoment.tsx",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the two mini-moments (scrub the radiators, find the leak)",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/feel.test.ts",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted tests for cell dragging and the mini-moments",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "public/art/bg_title.webp",
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Main menu background. From main_menu_bg.webp: compressed. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -670,7 +670,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Commander Ana. From Ana.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -678,7 +678,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Commander Ana, talking. From Ana_talking.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -686,7 +686,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Kai the Engineer. From Kai.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -694,7 +694,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Kai the Engineer, talking. From Kai_talking.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -702,7 +702,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Mei the Botanist. From Mei.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -710,7 +710,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Mei the Botanist, talking. From Mei_talking.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -718,7 +718,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Sol the Doctor. From Sol.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -726,7 +726,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Sol the Doctor, talking. From Sol_talking.webp: trimmed and resized to 140 px tall. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -734,7 +734,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Frost on the battery. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -742,7 +742,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Frost on the windows. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -750,7 +750,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Grow lights. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -758,7 +758,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Heater glow. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -766,7 +766,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Mold. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -774,7 +774,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Dust on the radiators. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -782,7 +782,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Cracked seal. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -790,7 +790,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Micrometeoroid damage on a solar panel. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -798,7 +798,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Sandbags around the storm room. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -806,7 +806,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "CraterQuest banner. Lettered in Inter Display (SIL Open Font License). Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -814,7 +814,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Flight Director Amara (4 moods). Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -822,7 +822,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The outpost by day. From Normal_Outpost.webp: rover lifted out, resized to 1920x1080. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -830,7 +830,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The outpost buried in regolith. From Buried Outpost.webp: rover lifted out, resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -838,7 +838,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Food module, emergency. From Emergency_Outpost.webp: cut out over the module. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -846,7 +846,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Food module, emergency, at night. From Emergency_Outpost.webp: cut out over the module, relit for night. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -854,7 +854,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Food module, warning. From Warning_Outpost.webp: cut out over the module. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -862,7 +862,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Food module, warning, at night. From Warning_Outpost.webp: cut out over the module, relit for night. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -870,7 +870,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The outpost at night. From Normal_Outpost.webp: relit with the lighting of Normal_night_buried.webp (by Claude), rover lifted out. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -878,7 +878,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The buried outpost at night. From Normal_night_buried.webp: rover lifted out, resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -886,7 +886,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Power module, emergency. From Emergency_Outpost.webp: cut out over the module. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -894,7 +894,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Power module, emergency, at night. From Emergency_Outpost.webp: cut out over the module, relit for night. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -902,7 +902,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Power module, warning. From Warning_Outpost.webp: cut out over the module. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -910,7 +910,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Power module, warning, at night. From Warning_Outpost.webp: cut out over the module, relit for night. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -918,7 +918,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The inner storm room locked down. From innerstorm_closed.webp: fitted over the storm room. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -926,7 +926,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Warmth module, emergency. From Emergency_Outpost.webp: cut out over the module. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -934,7 +934,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Warmth module, emergency, at night. From Emergency_Outpost.webp: cut out over the module, relit for night. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -942,7 +942,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Warmth module, warning. From Warning_Outpost.webp: cut out over the module. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -950,7 +950,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Warmth module, warning, at night. From Warning_Outpost.webp: cut out over the module, relit for night. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -958,7 +958,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Commander Ana (portrait). From Ana_icon.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -966,7 +966,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Kai the Engineer (portrait). From Kai_icon.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -974,7 +974,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Mei the Botanist (portrait). From Mei_icon.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -982,7 +982,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Sol the Doctor (portrait). From Sol_icon.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -990,7 +990,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Cave mouth. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -998,7 +998,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Cargo lander. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1006,7 +1006,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Lava-tube pit. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1014,7 +1014,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The rover. From Normal_Outpost.webp: cut out of the garage. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1022,7 +1022,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The rover at night. From Normal_Outpost.webp: cut out of the garage, relit for night. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1030,7 +1030,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Telescope. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1038,7 +1038,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The acceptance letter. From letter.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1046,7 +1046,7 @@
     "type": "image",
     "tool": "Claude (Anthropic) and SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The simulation room, Flight Director Amara on screen. From Simulation Room.webp: Amara drawn onto the big screen by Claude (Anthropic). Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1054,7 +1054,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The simulation mask. From mask_on.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1062,7 +1062,7 @@
     "type": "image",
     "tool": "Claude (Anthropic) and SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Simulation loading, seen through the mask. From outpost picture: blurred, with a visor display drawn by Claude (Anthropic). Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1070,7 +1070,7 @@
     "type": "image",
     "tool": "Claude (Anthropic)",
     "how": "Landing at sunrise. Drawn for the game. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1078,7 +1078,7 @@
     "type": "image",
     "tool": "Claude (Anthropic) and SI image/audio tool used by the assets team (name to be recorded)",
     "how": "SIMULATION ENDED glitch. From the night outpost: glitched in code by Claude (Anthropic). Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1086,7 +1086,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Lifting the mask off. From mask_on.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1094,7 +1094,7 @@
     "type": "image",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "The simulation room. From Simulation Room.webp: resized. Shown with an 'SI-generated' label wherever the game draws it",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "watermarked": true
   },
   {
@@ -1102,7 +1102,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Habitat hum. From habitatHum.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1110,7 +1110,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Mission music (also plays at night). From rocketLevel.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1118,7 +1118,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Storm music. From storm.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1126,7 +1126,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Title theme. From titleTheme.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1134,7 +1134,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Card reveal. From cardDraw.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1142,7 +1142,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Emergency. From warning (2).mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1150,7 +1150,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Glitch. From glitch.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1158,7 +1158,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Option select. From optionSelect.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1166,7 +1166,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Page turn. From pageFlip.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1174,7 +1174,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Moonquake rumble. From quakeRumble.mp3: first 4.5 s, faded out, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1182,7 +1182,7 @@
     "type": "audio",
     "tool": "SI image/audio tool used by the assets team (name to be recorded)",
     "how": "Warning. From warning.mp3: renamed, SI tag added",
-    "humanReviewed": true,
+    "humanReviewed": false,
     "metadataTagged": true
   },
   {
@@ -1190,20 +1190,51 @@
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the list of SI pictures read from credits.json, for the SI-generated labels",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/ui/CreditsPage.tsx",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the standalone credits page",
-    "humanReviewed": true
+    "humanReviewed": false
   },
   {
     "path": "src/credits.tsx",
     "type": "code",
     "tool": "Claude (Anthropic)",
     "how": "Drafted the entry point for credits.html",
-    "humanReviewed": true
+    "humanReviewed": false
+  },
+  {
+    "path": "README.md",
+    "type": "doc",
+    "tool": "Claude (Anthropic)",
+    "how": "Drafted the README from the project's code, data and docs",
+    "humanReviewed": false
+  },
+  {
+    "path": "docs/screenshots/outpost.jpg",
+    "type": "image",
+    "tool": "Claude (Anthropic) (screenshot); the art in it by the assets team's SI tool",
+    "how": "Screenshot of the outpost during a briefing, taken from the game; its SI art shows the game's SI-generated labels",
+    "humanReviewed": false,
+    "watermarked": true
+  },
+  {
+    "path": "docs/screenshots/main-menu.jpg",
+    "type": "image",
+    "tool": "Claude (Anthropic) (screenshot); the art in it by the assets team's SI tool",
+    "how": "Screenshot of the main menu, taken from the game; its SI art shows the game's SI-generated labels",
+    "humanReviewed": false,
+    "watermarked": true
+  },
+  {
+    "path": "docs/screenshots/finale.jpg",
+    "type": "image",
+    "tool": "Claude (Anthropic) (screenshot); the art in it by the assets team's SI tool",
+    "how": "Screenshot of the finale after a win, taken from the game; its SI art shows the game's SI-generated labels",
+    "humanReviewed": false,
+    "watermarked": true
   }
 ]

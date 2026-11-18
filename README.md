@@ -1,255 +1,205 @@
-# Phaser React TypeScript Template
-
-This is a Phaser project template that uses the React framework and Vite for bundling. It includes a bridge for React to Phaser game communication, hot-reloading for quick development workflow and scripts to generate production-ready builds.
-
-**[This Template is also available as a JavaScript version.](https://github.com/phaserjs/template-react)**
-
-### Versions
-
-This template has been updated for:
-
-- [Phaser 4](https://github.com/phaserjs/phaser)
-- [React 19.0.0](https://github.com/facebook/react)
-- [Vite 6.3.1](https://github.com/vitejs/vite)
-- [TypeScript 5.7.2](https://github.com/microsoft/TypeScript)
-
-![screenshot](screenshot.png)
-
-## Requirements
-
-[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
-
-## Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Launch a development web server |
-| `npm run build` | Create a production build in the `dist` folder |
-| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
-| `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
-
-## Writing Code
-
-After cloning the repo, run `npm install` from your project directory. Then, you can start the local development server by running `npm run dev`.
-
-The local development server runs on `http://localhost:8080` by default. Please see the Vite documentation if you wish to change this, or add SSL support.
-
-Once the server is running you can edit any of the files in the `src` folder. Vite will automatically recompile your code and then reload the browser.
-
-## Template Project Structure
-
-We have provided a default project structure to get you started. This is as follows:
-
-| Path                          | Description                                                                 |
-|-------------------------------|-----------------------------------------------------------------------------|
-| `index.html`                  | A basic HTML page to contain the game.                                     |
-| `src`                         | Contains the React client source code.                                     |
-| `src/main.tsx`                | The main **React** entry point. This bootstraps the React application.      |
-| `src/PhaserGame.tsx`          | The React component that initializes the Phaser Game and acts as a bridge between React and Phaser. |
-| `src/vite-env.d.ts`           | Global TypeScript declarations, providing type information.                |
-| `src/App.tsx`                 | The main React component.                                                  |
-| `src/game/EventBus.ts`        | A simple event bus to communicate between React and Phaser.                |
-| `src/game`                    | Contains the game source code.                                             |
-| `src/game/main.tsx`           | The main **game** entry point. This contains the game configuration and starts the game. |
-| `src/game/scenes/`            | The folder where Phaser Scenes are located.                                |
-| `public/style.css`            | Some simple CSS rules to help with page layout.                            |
-| `public/assets`               | Contains the static assets used by the game.                               |
-
-## React Bridge
-
-The `PhaserGame.tsx` component is the bridge between React and Phaser. It initializes the Phaser game and passes events between the two.
-
-To communicate between React and Phaser, you can use the **EventBus.js** file. This is a simple event bus that allows you to emit and listen for events from both React and Phaser.
-
-```js
-// In React
-import { EventBus } from './EventBus';
-
-// Emit an event
-EventBus.emit('event-name', data);
-
-// In Phaser
-// Listen for an event
-EventBus.on('event-name', (data) => {
-    // Do something with the data
-});
-```
-
-In addition to this, the `PhaserGame` component exposes the Phaser game instance along with the most recently active Phaser Scene using React forwardRef.
-
-Once exposed, you can access them like any regular react reference.
-
-## Phaser Scene Handling
-
-In Phaser, the Scene is the lifeblood of your game. It is where you sprites, game logic and all of the Phaser systems live. You can also have multiple scenes running at the same time. This template provides a way to obtain the current active scene from React.
-
-You can get the current Phaser Scene from the component event `"current-active-scene"`. In order to do this, you need to emit the event `"current-scene-ready"` from the Phaser Scene class. This event should be emitted when the scene is ready to be used. You can see this done in all of the Scenes in our template.
-
-**Important**: When you add a new Scene to your game, make sure you expose to React by emitting the `"current-scene-ready"` event via the `EventBus`, like this:
-
-
-```ts
-class MyScene extends Phaser.Scene
-{
-    constructor ()
-    {
-        super('MyScene');
-    }
-
-    create ()
-    {
-        // Your Game Objects and logic here
-
-        // At the end of create method:
-        EventBus.emit('current-scene-ready', this);
-    }
-}
-```
-
-You don't have to emit this event if you don't need to access the specific scene from React. Also, you don't have to emit it at the end of `create`, you can emit it at any point. For example, should your Scene be waiting for a network request or API call to complete, it could emit the event once that data is ready.
-
-### React Component Example
-
-Here's an example of how to access Phaser data for use in a React Component:
-
-```ts
-import { useRef } from 'react';
-import { IRefPhaserGame } from "./game/PhaserGame";
-
-// In a parent component
-const ReactComponent = () => {
-
-    const phaserRef = useRef<IRefPhaserGame>(); // you can access to this ref from phaserRef.current
-
-    const onCurrentActiveScene = (scene: Phaser.Scene) => {
-    
-        // This is invoked
-
-    }
-
-    return (
-        ...
-        <PhaserGame ref={phaserRef} currentActiveScene={onCurrentActiveScene} />
-        ...
-    );
-
-}
-```
-
-In the code above, you can get a reference to the current Phaser Game instance and the current Scene by creating a reference with `useRef()` and assign to PhaserGame component.
-
-From this state reference, the game instance is available via `phaserRef.current.game` and the most recently active Scene via `phaserRef.current.scene`.
-
-The `onCurrentActiveScene` callback will also be invoked whenever the the Phaser Scene changes, as long as you emit the event via the EventBus, as outlined above.
-
-## Handling Assets
-
-Vite supports loading assets via JavaScript module `import` statements.
-
-This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
-
-```js
-import logoImg from './assets/logo.png'
-```
-
-To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
-
-```js
-preload ()
-{
-    //  This is an example of an imported bundled image.
-    //  Remember to import it at the top of this file
-    this.load.image('logo', logoImg);
-
-    //  This is an example of loading a static image
-    //  from the public/assets folder:
-    this.load.image('background', 'assets/bg.png');
-}
-```
-
-When you issue the `npm run build` command, all static assets are automatically copied to the `dist/assets` folder.
-
-## Deploying to Production
-
-After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
-
-In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
-
-## Customizing the Template
-
-### Vite
-
-If you want to customize your build, such as adding plugin (i.e. for loading CSS or fonts), you can modify the `vite/config.*.mjs` file for cross-project changes, or you can modify and/or create new configuration files and target them in specific npm tasks inside of `package.json`. Please see the [Vite documentation](https://vitejs.dev/) for more information.
-
-## About log.js
-
-If you inspect our node scripts you will see there is a file called `log.js`. This file makes a single silent API call to a domain called `gryzor.co`. This domain is owned by Phaser Studio Inc. The domain name is a homage to one of our favorite retro games.
-
-We send the following 3 pieces of data to this API: The name of the template being used (vue, react, etc). If the build was 'dev' or 'prod' and finally the version of Phaser being used.
-
-At no point is any personal data collected or sent. We don't know about your project files, device, browser or anything else. Feel free to inspect the `log.js` file to confirm this.
-
-Why do we do this? Because being open source means we have no visible metrics about which of our templates are being used. We work hard to maintain a large and diverse set of templates for Phaser developers and this is our small anonymous way to determine if that work is actually paying off, or not. In short, it helps us ensure we're building the tools for you.
-
-However, if you don't want to send any data, you can use these commands instead:
-
-Dev:
+# CraterQuest
+
+**Four months on the Moon. Real NASA space weather. Every choice costs something.**
+
+CraterQuest is a browser game where young cadets run a small outpost on the Moon and learn to
+plan under real risk. It's Team Starmaraws' entry for the **NASA Space Apps Challenge 2026**,
+challenge *"Build a Junior Astronaut Mission Trainer"*.
+
+▶ **Play it online:** https://defching.github.io/2026-NASA-Space-Apps-Challenge-Starmaraws/
+
+![The outpost during a mission briefing](docs/screenshots/outpost.jpg)
+
+---
+
+## The premise
+
+You've just been accepted into the Junior Astronaut Academy. Flight Director Amara hands you a
+simulation mask, and when you put it on, you're Commander Ana's newest crewmate at a lunar outpost
+on the Sea of Tranquility, with sixteen weeks to get through.
+
+The Moon is a hard place to live. A lunar day lasts about two Earth weeks of nonstop sunlight,
+followed by about two weeks of freezing darkness. Solar storms can send dangerous radiation with
+little warning. Power is limited, and every cell you spend on one thing is a cell you can't spend
+on another. The game turns those real conditions into choices a kid can make, and shows them what
+each choice led to.
+
+When the mission ends, the simulation glitches and you lift the mask off, back in the training room
+with Amara. Win, and she shows you real NASA photos of the place you trained for.
+
+## How to play
+
+A mission is **8 turns of 14 days each**, alternating lunar day and lunar night.
+
+1. **Read the forecast.** Each turn starts with a space-weather forecast built from real NASA data.
+2. **Split your power.** Drag the battery's power cells between the **Heater**, the **Greenhouse**
+   and **Experiments**. Experiments earn Stars. During a storm alarm you can also shelter the crew.
+3. **Face the event.** Only after you lock the plan is the turn's event card revealed: a
+   moonquake, dust on the radiators, mold in the greenhouse, a cargo lander, and more. Pick how
+   to respond. Some choices come back to bite you turns later.
+4. **See what happened.** The outpost shows the result, and a report explains it in plain words.
+
+**To win:** keep **Power, Warmth and Food** above zero, earn **7 Stars**, and keep the
+**Radiation Badge** under its limit of **12**. Pick a specialist (Engineer, Botanist or Doctor):
+each has a special option on some cards. Two cards have optional 10-second hands-on mini-moments:
+scrubbing dust off the radiators, and finding a leak after a moonquake. At the end, a **debrief**
+traces the chain of causes behind the result.
+
+| Main menu | After a win |
+|---|---|
+| ![Main menu](docs/screenshots/main-menu.jpg) | ![Finale with real NASA photos](docs/screenshots/finale.jpg) |
+
+## Real NASA data
+
+- **Solar storms come from NASA's [DONKI](https://ccmc.gsfc.nasa.gov/tools/DONKI/) database**
+  (the Space Weather Database Of Notifications, Knowledge, Information), kept by the Community
+  Coordinated Modeling Center at NASA Goddard. Our archive covers **1 January 2010 to 31 October
+  2026**: **176 solar particle storms** measured near Earth by GOES, SOHO and ACE, plus
+  **2,768 M- and X-class solar flares** and **4,107 coronal mass ejections of 500 km/s or faster**,
+  used as warning signs.
+- **Every mission replays a real 16-week stretch of that history.** A storm only hits if one
+  really happened, and the game shows its real date with a link to the NASA record.
+- **Forecast odds are measured, not made up.** We counted how often a storm followed each kind of
+  warning in the archive: low risk is *less than 1 in 20*, medium is *1 in 10*, and high is
+  *1 in 4*.
+- **Each of the 18 event cards is based on real findings** and lists its sources (NASA, the NASA
+  Technical Reports Server, the Lunar Reconnaissance Orbiter, the Canadian Space Agency, and
+  published research). All of them are listed in the game under *"Where our data comes from"*.
+
+## Fair and built for every kid
+
+- **Every mission can be won.** A built-in checker plays each mission before handing it out, in
+  a Web Worker so the game never freezes. Missions come in three levels: Rookie, Pilot and Commander.
+- **Missions can be shared** with a short code, such as `MOON-EG9RJXS`, that catches typos.
+- **Accessibility:** text is at least 18 px, with a large-text option; every status uses an icon
+  as well as a colour; the whole game can be played with the keyboard (keys 1–9 pick options, Enter
+  confirms, Space skips an animation); there's a reduce-motion setting, separate music and effects
+  volumes, and plain-word explanations of new terms.
+
+**Demo missions** (Rookie, each with a real storm): `MOON-EG9RJXS` (Engineer),
+`MOON-D3FGWUX` (Doctor) and `MOON-BGZ43XM` (Botanist). Type one into the code box on the main
+menu. [DEMO.md](DEMO.md) explains what to look for in each.
+
+## Technology
+
+| Part | What we used |
+|---|---|
+| Game scene | [Phaser 4](https://phaser.io), a 2D game framework for the browser |
+| Screens and panels | [React 19](https://react.dev) with [TypeScript](https://www.typescriptlang.org) |
+| Game state | [Zustand](https://github.com/pmndrs/zustand) |
+| Build and dev server | [Vite](https://vite.dev) |
+| Tests | [Vitest](https://vitest.dev) (229 tests) |
+| Mission checker | A solver in a Web Worker that proves each mission can be won |
+| Data pipeline | Node scripts (run with [tsx](https://tsx.is)) that download DONKI records and measure the forecast odds |
+| Hosting | GitHub Pages: no server, no accounts, nothing to install for players |
+
+The game is a static website: everything, including the space-weather archive, ships with the page,
+so playing needs no server and no API key.
+
+## Run it locally
+
+**You need:** [Git](https://git-scm.com) and [Node.js](https://nodejs.org), which includes npm.
+We develop and test with Node 26. On Windows, use **Git Bash** for the commands below.
 
 ```bash
+# 1. Download the project
+git clone https://github.com/DEFChing/2026-NASA-Space-Apps-Challenge-Starmaraws.git
+cd 2026-NASA-Space-Apps-Challenge-Starmaraws
+
+# 2. Install the dependencies (one time, or after package.json changes)
+npm install
+
+# 3. Start the game
 npm run dev-nolog
 ```
 
-Build:
+Open **http://localhost:8080** in your browser. The page reloads by itself when you edit a file.
+Press `Ctrl + C` in the terminal to stop.
+
+> `npm run dev` also works. It's the same, but it also sends an anonymous usage ping to Phaser
+> (it comes from the Phaser template, in `log.js`). `dev-nolog` skips that.
+
+**To make and try the production build:**
 
 ```bash
-npm run build-nolog
+npm run build-nolog                              # builds the site into dist/
+npx vite preview --config vite/config.prod.mjs   # serves dist/ and prints the address to open
 ```
 
-Or, to disable the log entirely, simply delete the file `log.js` and remove the call to it in the `scripts` section of `package.json`:
+Open the build through that preview server (or any web server). Double-clicking
+`dist/index.html` won't work, because browsers block the game's scripts when opened as a file.
 
-Before:
+### Useful commands
 
-```json
-"scripts": {
-    "dev": "node log.js dev & dev-template-script",
-    "build": "node log.js build & build-template-script"
-},
-```
+| Command | What it does |
+|---|---|
+| `npm test` | Runs all the tests |
+| `npx tsc --noEmit` | Type-checks the code |
+| `npm run check-si` | Checks that every SI-assisted file is disclosed (see *Use of SI*) |
+| `npm run check-cards` | Checks the event cards against our card-writing rules |
+| `npm run check-demo` | Checks that the demo mission codes still give the rehearsed runs |
+| `npm run scan-seeds` | Measures how missions fall into the difficulty levels (used for balancing) |
 
-After:
+### Refreshing the space-weather data (optional)
 
-```json
-"scripts": {
-    "dev": "dev-template-script",
-    "build": "build-template-script"
-},
-```
+The archive is already in `src/data/donki.json`, so you only need this to update it.
 
-Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
+1. Get a free API key at https://api.nasa.gov.
+2. Create a file named `.env` in the project folder containing `NASA_API_KEY=your-key-here`.
+   **Never commit this file.** It's already in `.gitignore`.
+3. Run:
+   ```bash
+   npm run fetch-donki      # downloads the DONKI records (slow the first time; cached after)
+   npm run build-forecast   # re-measures the forecast odds
+   npm run check-weather    # shows what the new archive gives
+   ```
 
-## Join the Phaser Community!
+A new archive moves every mission's time window, so run `npm run check-demo` afterwards and pick new
+demo codes if needed.
 
-We love to see what developers like you create with Phaser! It really motivates us to keep improving. So please join our community and show-off your work 😄
+## Project structure
 
-**Visit:** The [Phaser website](https://phaser.io) and follow on [Phaser Twitter](https://twitter.com/phaser_)<br />
-**Play:** Some of the amazing games [#madewithphaser](https://twitter.com/search?q=%23madewithphaser&src=typed_query&f=live)<br />
-**Learn:** [API Docs](https://newdocs.phaser.io), [Support Forum](https://phaser.discourse.group/) and [StackOverflow](https://stackoverflow.com/questions/tagged/phaser-framework)<br />
-**Discord:** Join us on [Discord](https://discord.gg/phaser)<br />
-**Code:** 2000+ [Examples](https://labs.phaser.io)<br />
-**Read:** The [Phaser World](https://phaser.io/community/newsletter) Newsletter<br />
+| Path | What's there |
+|---|---|
+| `src/engine/` | The game rules, the mission checker, mission codes, and DONKI and forecast handling. Pure TypeScript, no graphics |
+| `src/game/` | The Phaser scene (the outpost and its animations) and the asset list |
+| `src/ui/` | The React screens: main menu, power split, cards, reports, debrief, settings, credits |
+| `src/store/` | Game state and the flow from turn to turn |
+| `src/data/` | Cards, level, dialogue, facts, credits and the DONKI archive (JSON) |
+| `src/workers/` | The mission checker's Web Worker |
+| `public/art`, `public/audio` | The game's pictures and sounds, loaded by name |
+| `scripts/` | The data pipeline and the project checks |
+| `credits.html` | The credits page |
 
-Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
+## Team Starmaraws
 
-The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
+| | Role |
+|---|---|
+| **Jon Rian Añonuevo** | Documentation, Assets, and Co-Designer |
+| **Daniel Emile Ching** | Lead Developer and Designer |
+| **Michael Udarbe Jr.** | Co-Designer |
 
-All rights reserved.
+Full art, sound, data and information credits are on the game's **Credits** page
+(`credits.html`, linked from the main menu).
 
 ## Use of SI
-This project used Super Intelligence (SI) tools, mainly Claude by Anthropic,
-to help draft
-the game design, code, game data and documentation. Every SI-assisted file is
-marked and
-listed in `si-manifest.json`; see [AI_USAGE.md](AI_USAGE.md) for where and
-how SI was used
-and what the team did.
+
+We used Super Intelligence (SI) tools in this project, and we disclose all of it:
+
+- **Code, game data and documentation** were drafted with Claude (Anthropic), then reviewed, edited
+  and tested by the team. Each SI-assisted source file starts with an SI disclosure comment.
+- **Most of the art and all of the audio** were made with SI tools. Every SI picture shows an
+  "SI-generated" label wherever the game draws it, and every SI sound has an "SI-generated" tag in
+  the file. The three finale photos are real NASA photos, not SI.
+- **The facts, the space-weather data and the card sources come from real NASA and Canadian Space
+  Agency sources**, never from an SI tool.
+
+Every SI-assisted file is listed in [`si-manifest.json`](si-manifest.json), and
+`npm run check-si` keeps that list complete. The full details are in [AI_USAGE.md](AI_USAGE.md).
+
+## License
+
+This project is released under the MIT License (see [LICENSE](LICENSE)). It started from the
+[Phaser React TypeScript template](https://github.com/phaserjs/template-react-ts) by Phaser Studio
+Inc., whose copyright notice is kept in the license file. This project uses no NASA or Canadian
+Space Agency logos or insignia; NASA data and photos are credited on the Credits page.
